@@ -6,7 +6,7 @@ interface ColorWashProps {
   scrollProgress: number;
 }
 
-const WASH_OPACITY = 0.32;
+const WASH_OPACITY = 0.28;
 
 export function ColorWash({ scrollProgress }: ColorWashProps) {
   const grade = getColorGradeAt(scrollProgress);
@@ -18,7 +18,7 @@ export function ColorWash({ scrollProgress }: ColorWashProps) {
       style={{
         backgroundColor: tintHex,
         opacity: WASH_OPACITY,
-        mixBlendMode: "color",
+        mixBlendMode: "hue",
       }}
     />
   );

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, type MutableRefObject } from "react";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { Color, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, Texture } from "three";
 import {
@@ -29,6 +29,7 @@ const tintColor = new Color();
 export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }: ValleyTerrainProps) {
   const groundRef = useRef<Mesh>(null);
   const groundMaterialRef = useRef<MeshStandardMaterial>(null);
+  const maxAnisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
 
   const config = useMemo(() => {
     const { min, max } = getChapterZRange();
@@ -56,11 +57,11 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
         texture.wrapS = RepeatWrapping;
         texture.wrapT = RepeatWrapping;
         texture.repeat.set(TEXTURE_REPEAT_X, repeatZ);
-        texture.anisotropy = 8;
+        texture.anisotropy = maxAnisotropy;
         texture.needsUpdate = true;
       });
     },
-    [repeatZ]
+    [repeatZ, maxAnisotropy]
   );
 
   const [diffuseMap, normalMap, roughnessMap] = useTexture(
