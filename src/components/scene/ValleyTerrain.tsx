@@ -65,14 +65,7 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
     [repeatZ, maxAnisotropy]
   );
 
-  const [diffuseMap, , roughnessMap] = useTexture(
-    [
-      "/textures/rock/rock-diffuse.webp",
-      "/textures/rock/rock-normal.webp",
-      "/textures/rock/rock-roughness.webp",
-    ],
-    configureTextures
-  );
+  const [diffuseMap] = useTexture(["/textures/rock/rock-diffuse.webp"], configureTextures);
 
   useFrame(() => {
     if (groundMaterialRef.current) {
@@ -89,13 +82,7 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
   return (
     <>
       <mesh ref={groundRef} geometry={groundGeometry} position={[0, 0, config.centerZ]}>
-        <meshStandardMaterial
-          ref={groundMaterialRef}
-          map={diffuseMap}
-          roughnessMap={roughnessMap}
-          roughness={0.96}
-          metalness={0.03}
-        />
+        <meshStandardMaterial ref={groundMaterialRef} map={diffuseMap} roughness={0.96} metalness={0.03} />
       </mesh>
     </>
   );
