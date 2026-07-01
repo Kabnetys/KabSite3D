@@ -172,3 +172,23 @@ Réécriture complète de la scène existante : remplacement des composants "Cit
 bâtiments procéduraux) par le nouveau système de terrain/vallée, conservation du système de
 navigation (minimap, ancres, clavier, fallback WebGL/texte, prefers-reduced-motion) adapté aux
 6 chapitres. Pris en charge par `game-developer` + `performance-engineer`.
+
+---
+
+## 10. Retours de test (v2.1) — raffinements
+
+Après premier test réel en local par le client :
+
+1. **Transitions de couleur pas fluides, "sauts de lumière noir"** : les overlays de
+   transition (fondu noir, flash blanc) entre chapitres sont trop brusques — ça se lit comme
+   une coupure plutôt qu'un fondu. À élargir et adoucir nettement.
+2. **La roche ne se lit pas comme de la roche** — on doit être sur une plaine rocheuse
+   clairement identifiable, pas un dégradé de couleur abstrait. Matériau à revoir : teintes
+   plus minérales (gris/brun), variation d'albédo façon veines de roche, rugosité élevée.
+3. **Dernier chapitre (Horizon) : panorama ciel étoilé + étendue d'eau** — le chapitre final
+   doit basculer sur un vrai plan d'eau calme mais visuellement fort (mouvement de vagues
+   perceptible, reflets, scintillement), pas juste un sol rocheux de plus.
+4. **Filaments lumineux bleus qui défilent avec le scroll, au centre de la vallée** — pas
+   seulement dans le chapitre Intelligence : un flux lumineux continu le long de l'axe central
+   de la vallée, dont le mouvement (pulse/défilement) est synchronisé avec la vitesse de
+   scroll, visible sur une bonne partie du parcours.
