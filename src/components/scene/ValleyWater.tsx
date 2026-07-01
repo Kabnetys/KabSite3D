@@ -17,8 +17,9 @@ interface ValleyWaterProps {
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_WIDTH = 900;
 const WATER_LENGTH = 700;
-const WATER_SEGMENTS = 110;
+const WATER_SEGMENTS = 56;
 const WATER_RISE_DISTANCE = 14;
+const NORMAL_RECOMPUTE_INTERVAL = 3;
 const WAVE_NOISE = createNoise2D(() => 0.61);
 
 function buildWaterGeometry(): PlaneGeometry {
@@ -40,6 +41,7 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
     const position = geometry.attributes.position as BufferAttribute;
     return Float32Array.from(position.array);
   }, [geometry]);
+  const frameCount = useRef(0);
 
   const horizonChapter = CHAPTERS[HORIZON_CHAPTER_INDEX];
   const waterCenterZ = horizonChapter.position[2] - 20;
@@ -51,7 +53,10 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
 
     if (!meshRef.current || !materialRef.current) return;
 
-    meshRef.current.visible = waterVisibility > 0.001;
+    const isVisible = waterVisibility > 0.001;
+    meshRef.current.visible = isVisible;
+    if (!isVisible) return;
+
     materialRef.current.opacity = Math.min(1, waterVisibility * 1.6);
     meshRef.current.position.y = waterLevel - (1 - waterVisibility) * WATER_RISE_DISTANCE;
 
@@ -68,7 +73,11 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
       position.setY(i, wave);
     }
     position.needsUpdate = true;
-    meshGeometry.computeVertexNormals();
+
+    frameCount.current += 1;
+    if (frameCount.current % NORMAL_RECOMPUTE_INTERVAL === 0) {
+      meshGeometry.computeVertexNormals();
+    }
   });
 
   return (
