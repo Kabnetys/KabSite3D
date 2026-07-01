@@ -22,6 +22,14 @@ export function CameraRig({ scrollProgress, reducedMotion, mouse }: CameraRigPro
     getCameraPositionAt(scrollProgress, targetPosition.current);
     getLookAtPositionAt(scrollProgress, targetLookAt.current);
 
+    if (typeof window !== "undefined") {
+      (window as unknown as { __debugCam: unknown }).__debugCam = {
+        scrollProgress,
+        camPos: camera.position.toArray(),
+        targetPos: targetPosition.current.toArray(),
+      };
+    }
+
     if (reducedMotion) {
       camera.position.copy(targetPosition.current);
       currentLookAt.current.copy(targetLookAt.current);
