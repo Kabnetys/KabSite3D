@@ -13,8 +13,9 @@ import { getChapterZRange } from "@/lib/chapters";
 
 const PANORAMA_WIDTH = 1600;
 const PANORAMA_LENGTH = 500;
-const PANORAMA_SEGMENTS = 40;
+const PANORAMA_SEGMENTS = 24;
 const PANORAMA_MARGIN = 20;
+const NORMAL_RECOMPUTE_INTERVAL = 4;
 const WAVE_NOISE = createNoise2D(() => 0.71);
 
 const BACKDROP_WIDTH = 1400;
@@ -54,6 +55,7 @@ function buildBackdropGeometry(): PlaneGeometry {
 export function DistantPanorama() {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
+  const frameCount = useRef(0);
   const geometry = useMemo(() => buildPanoramaGeometry(), []);
   const backdropGeometry = useMemo(() => buildBackdropGeometry(), []);
   const basePositions = useMemo(() => {
@@ -82,7 +84,10 @@ export function DistantPanorama() {
       position.setY(i, wave);
     }
     position.needsUpdate = true;
-    meshGeometry.computeVertexNormals();
+    frameCount.current += 1;
+    if (frameCount.current % NORMAL_RECOMPUTE_INTERVAL === 0) {
+      meshGeometry.computeVertexNormals();
+    }
     if (materialRef.current) {
       materialRef.current.emissiveIntensity = 0.4 + Math.sin(time * 0.3) * 0.08;
     }
