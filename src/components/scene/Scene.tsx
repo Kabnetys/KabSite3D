@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { Suspense, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Canvas } from "@react-three/fiber";
 import { DirectionalLight } from "three";
@@ -53,12 +53,14 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       <hemisphereLight args={["#00b4ff", "#1a1712", 0.24]} />
       <RimLight scrollProgress={scrollProgress} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
-      <ValleyTerrain
-        segments={segments}
-        reducedMotion={reducedMotion}
-        mouse={mouse}
-        scrollProgress={scrollProgress}
-      />
+      <Suspense fallback={null}>
+        <ValleyTerrain
+          segments={segments}
+          reducedMotion={reducedMotion}
+          mouse={mouse}
+          scrollProgress={scrollProgress}
+        />
+      </Suspense>
       <HeadlightBeacon
         scrollProgress={scrollProgress}
         reducedMotion={reducedMotion}
