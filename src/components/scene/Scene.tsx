@@ -42,12 +42,12 @@ function RimLight({ scrollProgress }: RimLightProps) {
 export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
   const performanceTier = useMemo(() => detectPerformanceTier(), []);
   const highQuality = performanceTier === "high";
-  const segments = highQuality ? 140 : 80;
+  const segments = highQuality ? 90 : 60;
   const mouse = useMouseParallax(!reducedMotion);
 
   return (
     <Canvas
-      dpr={highQuality ? [1, 1.75] : [1, 1]}
+      dpr={highQuality ? [1, 1.5] : [1, 1]}
       gl={{ antialias: highQuality }}
       camera={{ fov: 62, near: 0.1, far: 900 }}
     >

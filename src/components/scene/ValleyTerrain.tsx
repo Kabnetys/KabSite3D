@@ -29,7 +29,8 @@ const tintColor = new Color();
 export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }: ValleyTerrainProps) {
   const groundRef = useRef<Mesh>(null);
   const groundMaterialRef = useRef<MeshStandardMaterial>(null);
-  const maxAnisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
+  const rendererMaxAnisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
+  const maxAnisotropy = Math.min(4, rendererMaxAnisotropy);
 
   const config = useMemo(() => {
     const { min, max } = getChapterZRange();
