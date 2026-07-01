@@ -158,11 +158,18 @@ un chapitre, pas seulement dérouler le scroll de façon linéaire.
 
 ## 8. Contrainte technique constante
 
-Tout reste procédural (bruit + géométrie + shaders), aucun asset 3D externe ni photo réaliste
-importée telle quelle — cohérent avec le positionnement "sobre et rapide" et la contrainte de
-performance mobile déjà validée. Les photos de Kyllian et Anthony seront traitées
-graphiquement (teinte, désaturation) pour s'intégrer à l'ambiance de chaque chapitre plutôt
-que d'être insérées brutes.
+Géométrie et animation restent procédurales (bruit + shaders), aucun modèle 3D externe
+(pas de bâtiments/objets modélisés importés) — cohérent avec le positionnement "sobre et
+rapide" et la contrainte de performance mobile déjà validée. Les photos de Kyllian et Anthony
+seront traitées graphiquement (teinte, désaturation) pour s'intégrer à l'ambiance de chaque
+chapitre plutôt que d'être insérées brutes.
+
+**Exception validée (v2.4)** : pour la texture du sol (roche/neige/sable), on utilise de
+vraies textures photographiques libres de droits (CC0, légères, ex. Poly Haven/ambientCG)
+plaquées sur le relief procédural existant, plutôt qu'une couleur 100% générée par code —
+référence explicite : sidewave.it, dont le rendu très réaliste vient de vraies textures
+photo + un fort gradient de couleur (post-traitement) par section, pas de géométrie
+supplémentaire ni de modèles 3D importés.
 
 ---
 
