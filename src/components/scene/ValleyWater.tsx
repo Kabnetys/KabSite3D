@@ -15,9 +15,10 @@ interface ValleyWaterProps {
 }
 
 const HORIZON_CHAPTER_INDEX = 5;
-const WATER_WIDTH = 260;
-const WATER_LENGTH = 220;
-const WATER_SEGMENTS = 96;
+const WATER_WIDTH = 900;
+const WATER_LENGTH = 700;
+const WATER_SEGMENTS = 110;
+const WATER_RISE_DISTANCE = 14;
 const WAVE_NOISE = createNoise2D(() => 0.61);
 
 function buildWaterGeometry(): PlaneGeometry {
@@ -51,7 +52,8 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
     if (!meshRef.current || !materialRef.current) return;
 
     meshRef.current.visible = waterVisibility > 0.001;
-    materialRef.current.opacity = waterVisibility;
+    materialRef.current.opacity = Math.min(1, waterVisibility * 1.6);
+    meshRef.current.position.y = waterLevel - (1 - waterVisibility) * WATER_RISE_DISTANCE;
 
     const meshGeometry = meshRef.current.geometry;
     const position = meshGeometry.attributes.position as BufferAttribute;
