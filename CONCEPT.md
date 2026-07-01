@@ -114,13 +114,24 @@ métaphore du "on avance avec le client, pas de mauvaise surprise" (valeur n°2 
 
 ---
 
-## 4. Ce qui ne change JAMAIS pendant le scroll
+## 4. Navigation — on ne subit pas le scroll, on pilote la ville
 
-- Un mini-repère de progression (façon "plan de métro" vertical discret en bord d'écran)
-  indiquant les 6 quartiers — utile car un site 3D peut désorienter, on ne veut jamais que
-  le visiteur se sente "perdu dans la ville"
-- Un bouton "passer en version texte" toujours accessible (accessibilité + SEO + repli mobile
-  bas de gamme — le site 3D est l'expérience "vitrine", pas l'unique porte d'entrée)
+Le scroll linéaire seul ne suffit pas : le visiteur doit pouvoir **se repérer et sauter**
+directement à un quartier, comme sur un GPS de ville, pas juste dérouler une bobine de film.
+
+- **Minimap persistante** (coin d'écran, toujours visible) : plan stylisé de la cité vu du
+  dessus, façon "plan de métro" lumineux. Les 6 quartiers y sont représentés comme des points
+  reliés par les rues/circuits. Le quartier actif est surligné en temps réel pendant le scroll.
+- **Navigation directe** : cliquer un point de la minimap déclenche un travelling automatique
+  (fly-to caméra, pas un cut brutal) jusqu'au quartier choisi — on garde la cohérence "vol
+  continu" du concept, même en navigation non-linéaire.
+- **Ancres URL par section** (`/#applications`, `/#equipe`, etc.) : lien direct partageable
+  vers un quartier précis, et ça sert aussi le SEO (sections indexables individuellement).
+- **Navigation clavier** : flèches haut/bas ou Tab pour passer au quartier suivant/précédent,
+  sans dépendre uniquement de la molette — accessibilité et confort desktop.
+- **Bouton "passer en version texte"** toujours accessible : un mode liste simple, sans 3D,
+  qui reprend les ancres ci-dessus — repli accessibilité + SEO + mobile bas de gamme, le site
+  3D reste l'expérience "vitrine", pas l'unique porte d'entrée.
 
 ---
 
