@@ -4,7 +4,6 @@ import { Color, Mesh, MeshStandardMaterial } from "three";
 import {
   DEFAULT_VALLEY_CONFIG,
   buildGroundGeometry,
-  buildSkyGeometry,
   computeValleyConfigForRange,
 } from "@/lib/valleyTerrain";
 import { getChapterZRange } from "@/lib/chapters";
@@ -21,7 +20,7 @@ interface ValleyTerrainProps {
   scrollProgress: number;
 }
 
-const CAMERA_MARGIN = 120;
+const CAMERA_MARGIN = 60;
 const tintColor = new Color();
 
 export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }: ValleyTerrainProps) {
@@ -44,7 +43,6 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
   }, [segments]);
 
   const groundGeometry = useMemo(() => buildGroundGeometry(config), [config]);
-  const skyGeometry = useMemo(() => buildSkyGeometry(config), [config]);
 
   useFrame(() => {
     if (groundMaterialRef.current) {
@@ -67,9 +65,6 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
           roughness={0.96}
           metalness={0.03}
         />
-      </mesh>
-      <mesh geometry={skyGeometry} position={[0, 0, config.centerZ]}>
-        <meshStandardMaterial color="#05040a" roughness={1} metalness={0} side={2} />
       </mesh>
     </>
   );

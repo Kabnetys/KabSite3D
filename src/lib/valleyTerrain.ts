@@ -40,14 +40,17 @@ export function valleyHeightAt(
 }
 
 const veinNoise2D = createNoise2D(() => 0.19);
+const grainNoise2D = createNoise2D(() => 0.53);
 
 const ROCK_LOW = new Color("#141318");
 const ROCK_MID = new Color("#3a352f");
 const ROCK_HIGH = new Color("#5c564d");
 const ROCK_VEIN_DARK = new Color("#0c0b0e");
 const ROCK_VEIN_LIGHT = new Color("#4d443a");
+const ROCK_GRAIN_DARK = new Color("#0f0e11");
+const ROCK_GRAIN_LIGHT = new Color("#6b6459");
 
-function heightColor(height: number, veinAmount: number): Color {
+function heightColor(height: number, veinAmount: number, grainAmount: number): Color {
   const t = Math.min(1, Math.max(0, (height + 14) / 20));
   const color =
     t < 0.5
@@ -56,9 +59,13 @@ function heightColor(height: number, veinAmount: number): Color {
 
   if (veinAmount > 0) {
     const veinColor = veinAmount < 0.5 ? ROCK_VEIN_DARK : ROCK_VEIN_LIGHT;
-    const strength = Math.min(1, Math.abs(veinAmount - 0.5) * 2) * 0.28;
+    const strength = Math.min(1, Math.abs(veinAmount - 0.5) * 2) * 0.4;
     color.lerp(veinColor, strength);
   }
+
+  const grainColor = grainAmount < 0.5 ? ROCK_GRAIN_DARK : ROCK_GRAIN_LIGHT;
+  const grainStrength = Math.min(1, Math.abs(grainAmount - 0.5) * 2) * 0.12;
+  color.lerp(grainColor, grainStrength);
 
   return color;
 }
@@ -95,7 +102,8 @@ export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
     const y = valleyHeightAt(x, z, config);
     position.setY(i, y);
     const veinAmount = veinNoise2D(x * 0.6, z * 0.6) * 0.5 + 0.5;
-    color.copy(heightColor(y, veinAmount));
+    const grainAmount = grainNoise2D(x * 2.4, z * 2.4) * 0.5 + 0.5;
+    color.copy(heightColor(y, veinAmount, grainAmount));
     const grid = gridLineFactor(x, z) * 0.1;
     color.lerp(gridTint, grid);
     colors[i * 3] = color.r;
@@ -110,9 +118,10 @@ export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
   for (let i = 0; i < normal.count; i += 1) {
     const x = position.getX(i);
     const z = position.getZ(i) + config.centerZ;
-    const jitter = detailNoise2D(x * 0.35, z * 0.35) * 0.08;
-    normal.setX(i, normal.getX(i) + jitter);
-    normal.setZ(i, normal.getZ(i) + jitter * 0.6);
+    const jitter = detailNoise2D(x * 0.35, z * 0.35) * 0.12;
+    const grainJitter = grainNoise2D(x * 2.4, z * 2.4) * 0.06;
+    normal.setX(i, normal.getX(i) + jitter + grainJitter);
+    normal.setZ(i, normal.getZ(i) + jitter * 0.6 + grainJitter * 0.7);
   }
   normal.needsUpdate = true;
 

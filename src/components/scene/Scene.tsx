@@ -10,6 +10,7 @@ import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { HeadlightBeacon } from "./HeadlightBeacon";
 import { ValleyFilaments } from "./ValleyFilaments";
 import { ValleyWater } from "./ValleyWater";
+import { DistantPanorama } from "./DistantPanorama";
 import { CameraRig } from "./CameraRig";
 import { PostFX } from "./PostFX";
 import { Vector3 } from "three";
@@ -60,13 +61,14 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       dpr={highQuality ? [1, 1.75] : [1, 1]}
       gl={{ antialias: highQuality }}
       shadows={highQuality}
-      camera={{ fov: 62, near: 0.1, far: 600 }}
+      camera={{ fov: 62, near: 0.1, far: 900 }}
     >
       <color attach="background" args={["#040d1a"]} />
       <ambientLight intensity={0.16} color="#8a8478" />
       <hemisphereLight args={["#00b4ff", "#1a1712", 0.24]} />
       <RimLight scrollProgress={scrollProgress} castShadow={highQuality} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
+      <DistantPanorama />
       <ValleyTerrain
         segments={segments}
         reducedMotion={reducedMotion}

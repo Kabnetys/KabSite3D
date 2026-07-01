@@ -20,7 +20,7 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     fogDensity: 0.01,
     terrainRoughness: 0.9,
     hasFog: true,
-    hasStars: false,
+    hasStars: true,
     hasFilaments: false,
   },
   {
@@ -30,7 +30,7 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     fogDensity: 0.0121,
     terrainRoughness: 1,
     hasFog: true,
-    hasStars: false,
+    hasStars: true,
     hasFilaments: false,
   },
   {
@@ -40,7 +40,7 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     fogDensity: 0.0057,
     terrainRoughness: 0.35,
     hasFog: true,
-    hasStars: false,
+    hasStars: true,
     hasFilaments: false,
   },
   {
@@ -60,7 +60,7 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     fogDensity: 0.0057,
     terrainRoughness: 0.75,
     hasFog: true,
-    hasStars: false,
+    hasStars: true,
     hasFilaments: false,
   },
   {
@@ -74,6 +74,16 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFilaments: false,
   },
 ];
+
+const STAR_OPACITY_BY_CHAPTER = [0.35, 0.25, 0.4, 0.85, 0.45, 0.85];
+
+export function getStarOpacityAt(progress: number): number {
+  const { index, t } = getChapterBlend(progress);
+  const next = Math.min(STAR_OPACITY_BY_CHAPTER.length - 1, index + 1);
+  const a = STAR_OPACITY_BY_CHAPTER[index];
+  const b = STAR_OPACITY_BY_CHAPTER[next];
+  return a + (b - a) * t;
+}
 
 const colorA = new Color();
 const colorB = new Color();

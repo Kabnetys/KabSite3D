@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { BufferGeometry, Group, LineBasicMaterial, Vector3 } from "three";
+import { CatmullRomCurve3, Group, MeshStandardMaterial, TubeGeometry, Vector3 } from "three";
 import { getChapterZRange } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
 
@@ -8,16 +8,16 @@ interface ValleyFilamentsProps {
   scrollProgress: number;
 }
 
-const STRAND_COUNT = 10;
-const SEGMENTS_PER_STRAND = 60;
-const STRAND_LATERAL_SPAN = 1.4;
+const STRAND_COUNT = 2;
+const SEGMENTS_PER_STRAND = 80;
+const STRAND_LATERAL_SPAN = 2.2;
+const TUBE_RADIUS = 0.16;
 const PULSE_SPEED = 3.2;
 const PULSE_WIDTH = 0.18;
 
 interface StrandData {
-  geometry: BufferGeometry;
+  geometry: TubeGeometry;
   zValues: number[];
-  offsetX: number;
 }
 
 function buildStrands(): StrandData[] {
@@ -38,7 +38,9 @@ function buildStrands(): StrandData[] {
       points.push(new Vector3(x, y, z));
       zValues.push(z);
     }
-    strands.push({ geometry: new BufferGeometry().setFromPoints(points), zValues, offsetX });
+    const curve = new CatmullRomCurve3(points, false, "catmullrom", 0.3);
+    const geometry = new TubeGeometry(curve, SEGMENTS_PER_STRAND, TUBE_RADIUS, 8, false);
+    strands.push({ geometry, zValues });
   }
 
   return strands;
@@ -47,13 +49,13 @@ function buildStrands(): StrandData[] {
 export function ValleyFilaments({ scrollProgress }: ValleyFilamentsProps) {
   const groupRef = useRef<Group>(null);
   const strands = useMemo(() => buildStrands(), []);
-  const materialRefs = useRef<LineBasicMaterial[]>([]);
+  const materialRefs = useRef<MeshStandardMaterial[]>([]);
 
-  useFrame(({ clock }) => {
+  useFrame(() => {
     if (!groupRef.current) return;
     const { min, max } = getChapterZRange();
     const span = max - min + 40;
-    const phase = scrollProgress * PULSE_SPEED + clock.elapsedTime * 0.08;
+    const phase = scrollProgress * PULSE_SPEED;
 
     strands.forEach((strand, i) => {
       const material = materialRefs.current[i];
@@ -61,24 +63,26 @@ export function ValleyFilaments({ scrollProgress }: ValleyFilamentsProps) {
       const midZ = strand.zValues[Math.floor(strand.zValues.length / 2)];
       const normalizedZ = (max + 20 - midZ) / span;
       const pulse = 0.5 + 0.5 * Math.sin((normalizedZ - phase) / PULSE_WIDTH);
-      material.opacity = 0.15 + pulse * 0.55;
+      material.emissiveIntensity = 0.8 + pulse * 1.8;
     });
   });
 
   return (
     <group ref={groupRef}>
       {strands.map((strand, i) => (
-        <line key={`filament-${i}`}>
-          <primitive object={strand.geometry} attach="geometry" />
-          <lineBasicMaterial
-            ref={(material) => {
+        <mesh key={`filament-${i}`} geometry={strand.geometry}>
+          <meshStandardMaterial
+            ref={(material: MeshStandardMaterial | null) => {
               if (material) materialRefs.current[i] = material;
             }}
             color="#00b4ff"
-            transparent
-            opacity={0.4}
+            emissive="#00b4ff"
+            emissiveIntensity={1.2}
+            roughness={0.3}
+            metalness={0.2}
+            toneMapped={false}
           />
-        </line>
+        </mesh>
       ))}
     </group>
   );

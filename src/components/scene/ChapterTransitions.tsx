@@ -17,15 +17,15 @@ interface TransitionZone {
 
 const TRANSITION_WIDTH = 0.06;
 const MAX_BLACK_OPACITY = 0.5;
-const MAX_WHITE_OPACITY = 0.32;
+const MAX_WHITE_OPACITY = 0.2;
 
 function buildTransitionZones(): TransitionZone[] {
   const kinds: TransitionKind[] = [
     "fadeBlack",
     "flashWhite",
-    "flashWhite",
     "fadeBlack",
-    "flashWhite",
+    "fadeBlack",
+    "fadeBlack",
   ];
   return CHAPTERS.slice(1).map((chapter, i) => ({
     kind: kinds[i] ?? "fadeBlack",
