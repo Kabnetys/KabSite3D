@@ -210,3 +210,15 @@ Après premier test réel en local par le client :
 4. **Filaments** — toujours présents mais à revoir : un filament plus épais (moins nombreux,
    plus visible) qui suit la position réelle du scroll en temps réel, sans décalage ni
    "avance" autonome dans le temps.
+
+---
+
+## 12. Retours de test (v2.3)
+
+- **Faisceau lumineux (filament) toujours visible en entier** — actuellement le filament est
+  une structure continue qui couvre toute la vallée et reste donc visible en permanence, peu
+  importe la position de scroll. Le client veut plutôt une zone lumineuse locale qui voyage
+  avec le scroll (comme une lumière qui avance avec toi), pas un objet statique toujours
+  entièrement présent à l'écran.
+- **Textures de roche** — le client va fournir des images de référence pour caler la palette
+  et le grain sur quelque chose de concret plutôt que de deviner.
