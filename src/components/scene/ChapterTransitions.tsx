@@ -15,7 +15,9 @@ interface TransitionZone {
   end: number;
 }
 
-const TRANSITION_WIDTH = 0.02;
+const TRANSITION_WIDTH = 0.06;
+const MAX_BLACK_OPACITY = 0.5;
+const MAX_WHITE_OPACITY = 0.32;
 
 function buildTransitionZones(): TransitionZone[] {
   const kinds: TransitionKind[] = [
@@ -32,11 +34,16 @@ function buildTransitionZones(): TransitionZone[] {
   }));
 }
 
+function smoothstep(t: number): number {
+  return t * t * (3 - 2 * t);
+}
+
 function triangularOpacity(progress: number, zone: TransitionZone): number {
   if (progress < zone.start || progress > zone.end) return 0;
   const mid = (zone.start + zone.end) / 2;
   const half = (zone.end - zone.start) / 2;
-  return 1 - Math.abs(progress - mid) / half;
+  const linear = 1 - Math.abs(progress - mid) / half;
+  return smoothstep(Math.min(1, Math.max(0, linear)));
 }
 
 export function ChapterTransitions({ scrollProgress }: ChapterTransitionsProps) {
@@ -55,11 +62,11 @@ export function ChapterTransitions({ scrollProgress }: ChapterTransitionsProps) 
     <div className="pointer-events-none fixed inset-0 z-20">
       <div
         className="absolute inset-0 bg-black transition-opacity duration-100"
-        style={{ opacity: blackOpacity }}
+        style={{ opacity: blackOpacity * MAX_BLACK_OPACITY }}
       />
       <div
         className="absolute inset-0 bg-white transition-opacity duration-100"
-        style={{ opacity: whiteOpacity * 0.85 }}
+        style={{ opacity: whiteOpacity * MAX_WHITE_OPACITY }}
       />
     </div>
   );

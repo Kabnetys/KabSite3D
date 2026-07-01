@@ -39,13 +39,28 @@ export function valleyHeightAt(
   return ridge - carve;
 }
 
-function heightColor(height: number, roughnessTint: number): Color {
-  const low = new Color("#0a0812");
-  const mid = new Color("#2a2440");
-  const high = new Color("#6a5a7a");
+const veinNoise2D = createNoise2D(() => 0.19);
+
+const ROCK_LOW = new Color("#141318");
+const ROCK_MID = new Color("#3a352f");
+const ROCK_HIGH = new Color("#5c564d");
+const ROCK_VEIN_DARK = new Color("#0c0b0e");
+const ROCK_VEIN_LIGHT = new Color("#4d443a");
+
+function heightColor(height: number, veinAmount: number): Color {
   const t = Math.min(1, Math.max(0, (height + 14) / 20));
-  const color = t < 0.5 ? low.clone().lerp(mid, t * 2) : mid.clone().lerp(high, (t - 0.5) * 2);
-  return color.lerp(new Color("#3a2a2a"), roughnessTint * 0.15);
+  const color =
+    t < 0.5
+      ? ROCK_LOW.clone().lerp(ROCK_MID, t * 2)
+      : ROCK_MID.clone().lerp(ROCK_HIGH, (t - 0.5) * 2);
+
+  if (veinAmount > 0) {
+    const veinColor = veinAmount < 0.5 ? ROCK_VEIN_DARK : ROCK_VEIN_LIGHT;
+    const strength = Math.min(1, Math.abs(veinAmount - 0.5) * 2) * 0.28;
+    color.lerp(veinColor, strength);
+  }
+
+  return color;
 }
 
 const GRID_SPACING = 4;
@@ -60,10 +75,7 @@ function gridLineFactor(x: number, z: number): number {
   return dist < GRID_LINE_WIDTH ? 1 - dist / GRID_LINE_WIDTH : 0;
 }
 
-export function buildGroundGeometry(
-  config: ValleyConfig,
-  roughnessTint = 0
-): BufferGeometry {
+export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
   const geometry = new PlaneGeometry(
     config.width,
     config.length,
@@ -82,8 +94,9 @@ export function buildGroundGeometry(
     const z = position.getZ(i) + config.centerZ;
     const y = valleyHeightAt(x, z, config);
     position.setY(i, y);
-    color.copy(heightColor(y, roughnessTint));
-    const grid = gridLineFactor(x, z) * 0.18;
+    const veinAmount = veinNoise2D(x * 0.6, z * 0.6) * 0.5 + 0.5;
+    color.copy(heightColor(y, veinAmount));
+    const grid = gridLineFactor(x, z) * 0.1;
     color.lerp(gridTint, grid);
     colors[i * 3] = color.r;
     colors[i * 3 + 1] = color.g;

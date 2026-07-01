@@ -8,7 +8,8 @@ import { getCameraPositionAt } from "@/lib/cameraPath";
 import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { HeadlightBeacon } from "./HeadlightBeacon";
-import { IntelligenceFilaments } from "./IntelligenceFilaments";
+import { ValleyFilaments } from "./ValleyFilaments";
+import { ValleyWater } from "./ValleyWater";
 import { CameraRig } from "./CameraRig";
 import { PostFX } from "./PostFX";
 import { Vector3 } from "three";
@@ -62,12 +63,18 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       camera={{ fov: 62, near: 0.1, far: 600 }}
     >
       <color attach="background" args={["#040d1a"]} />
-      <ambientLight intensity={0.1} color="#1565c0" />
-      <hemisphereLight args={["#00b4ff", "#040d1a", 0.18]} />
+      <ambientLight intensity={0.16} color="#8a8478" />
+      <hemisphereLight args={["#00b4ff", "#1a1712", 0.24]} />
       <RimLight scrollProgress={scrollProgress} castShadow={highQuality} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
-      <ValleyTerrain segments={segments} reducedMotion={reducedMotion} mouse={mouse} />
-      <IntelligenceFilaments scrollProgress={scrollProgress} />
+      <ValleyTerrain
+        segments={segments}
+        reducedMotion={reducedMotion}
+        mouse={mouse}
+        scrollProgress={scrollProgress}
+      />
+      <ValleyFilaments scrollProgress={scrollProgress} />
+      <ValleyWater scrollProgress={scrollProgress} />
       <HeadlightBeacon
         scrollProgress={scrollProgress}
         reducedMotion={reducedMotion}
