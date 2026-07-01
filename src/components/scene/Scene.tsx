@@ -83,7 +83,7 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
         mouse={mouse}
       />
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
-      <PostFX highQuality={highQuality} />
+      {highQuality && <PostFX highQuality={highQuality} />}
     </Canvas>
   );
 }

@@ -9,6 +9,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { isWebGLAvailable } from "@/lib/webgl";
 import { Minimap } from "./Minimap";
 import { ChapterTransitions } from "./ChapterTransitions";
+import { ColorWash } from "./ColorWash";
 import { TextVersion } from "@/components/ui/TextVersion";
 import { TextVersionToggle } from "@/components/ui/TextVersionToggle";
 
@@ -44,6 +45,7 @@ export function ValleyExperience() {
       <div className="fixed inset-0 z-0">
         <Scene scrollProgress={scrollProgress} reducedMotion={reducedMotion} />
       </div>
+      <ColorWash scrollProgress={scrollProgress} />
       <ChapterTransitions scrollProgress={scrollProgress} />
       <Minimap scrollProgress={scrollProgress} onSelect={goToChapter} />
       <TextVersionToggle onClick={() => setShowTextVersion(true)} />

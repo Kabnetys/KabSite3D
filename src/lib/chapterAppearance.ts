@@ -10,6 +10,11 @@ export interface ChapterAppearance {
   hasFog: boolean;
   hasStars: boolean;
   hasFilaments: boolean;
+  gradeHue: number;
+  gradeSaturation: number;
+  gradeBrightness: number;
+  gradeContrast: number;
+  gradeTint: string;
 }
 
 export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
@@ -22,6 +27,11 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFog: true,
     hasStars: true,
     hasFilaments: false,
+    gradeHue: -0.35,
+    gradeSaturation: 0.35,
+    gradeBrightness: -0.05,
+    gradeContrast: 0.1,
+    gradeTint: "#8a6adf",
   },
   {
     fogColor: "#4a1414",
@@ -32,6 +42,11 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFog: true,
     hasStars: true,
     hasFilaments: false,
+    gradeHue: 0.05,
+    gradeSaturation: 0.45,
+    gradeBrightness: 0.0,
+    gradeContrast: 0.18,
+    gradeTint: "#ff6a33",
   },
   {
     fogColor: "#0a3a3a",
@@ -42,6 +57,11 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFog: true,
     hasStars: true,
     hasFilaments: false,
+    gradeHue: 0.5,
+    gradeSaturation: 0.4,
+    gradeBrightness: 0.02,
+    gradeContrast: 0.14,
+    gradeTint: "#2ee6ff",
   },
   {
     fogColor: "#020208",
@@ -52,6 +72,11 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFog: false,
     hasStars: true,
     hasFilaments: true,
+    gradeHue: 0.62,
+    gradeSaturation: 0.5,
+    gradeBrightness: -0.08,
+    gradeContrast: 0.2,
+    gradeTint: "#3366ff",
   },
   {
     fogColor: "#6a3f10",
@@ -62,6 +87,11 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFog: true,
     hasStars: true,
     hasFilaments: false,
+    gradeHue: 0.02,
+    gradeSaturation: 0.4,
+    gradeBrightness: 0.04,
+    gradeContrast: 0.12,
+    gradeTint: "#ffb347",
   },
   {
     fogColor: "#05050a",
@@ -72,6 +102,11 @@ export const CHAPTER_APPEARANCES: ChapterAppearance[] = [
     hasFog: true,
     hasStars: true,
     hasFilaments: false,
+    gradeHue: 0.0,
+    gradeSaturation: -0.25,
+    gradeBrightness: 0.03,
+    gradeContrast: 0.08,
+    gradeTint: "#dfe8ff",
   },
 ];
 
@@ -124,4 +159,32 @@ export function getFogDensityAt(progress: number): number {
 export function getAppearanceAt(progress: number): ChapterAppearance {
   const { index } = getChapterBlend(progress);
   return CHAPTER_APPEARANCES[index];
+}
+
+export interface ColorGrade {
+  hue: number;
+  saturation: number;
+  brightness: number;
+  contrast: number;
+  tint: Color;
+}
+
+const gradeTintA = new Color();
+const gradeTintB = new Color();
+const gradeTintMixed = new Color();
+
+export function getColorGradeAt(progress: number): ColorGrade {
+  const { index, t } = getChapterBlend(progress);
+  const next = Math.min(CHAPTER_APPEARANCES.length - 1, index + 1);
+  const a = CHAPTER_APPEARANCES[index];
+  const b = CHAPTER_APPEARANCES[next];
+  gradeTintA.set(a.gradeTint);
+  gradeTintB.set(b.gradeTint);
+  return {
+    hue: a.gradeHue + (b.gradeHue - a.gradeHue) * t,
+    saturation: a.gradeSaturation + (b.gradeSaturation - a.gradeSaturation) * t,
+    brightness: a.gradeBrightness + (b.gradeBrightness - a.gradeBrightness) * t,
+    contrast: a.gradeContrast + (b.gradeContrast - a.gradeContrast) * t,
+    tint: gradeTintMixed.copy(gradeTintA).lerp(gradeTintB, t).clone(),
+  };
 }

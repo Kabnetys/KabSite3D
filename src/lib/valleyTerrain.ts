@@ -1,5 +1,5 @@
 import { createNoise2D } from "simplex-noise";
-import { BufferGeometry, Color, Float32BufferAttribute, PlaneGeometry } from "three";
+import { BufferGeometry, PlaneGeometry } from "three";
 
 export interface ValleyConfig {
   width: number;
@@ -39,49 +39,6 @@ export function valleyHeightAt(
   return ridge - carve;
 }
 
-const veinNoise2D = createNoise2D(() => 0.19);
-const grainNoise2D = createNoise2D(() => 0.53);
-
-const ROCK_LOW = new Color("#141318");
-const ROCK_MID = new Color("#3a352f");
-const ROCK_HIGH = new Color("#5c564d");
-const ROCK_VEIN_DARK = new Color("#0c0b0e");
-const ROCK_VEIN_LIGHT = new Color("#4d443a");
-const ROCK_GRAIN_DARK = new Color("#0f0e11");
-const ROCK_GRAIN_LIGHT = new Color("#6b6459");
-
-function heightColor(height: number, veinAmount: number, grainAmount: number): Color {
-  const t = Math.min(1, Math.max(0, (height + 14) / 20));
-  const color =
-    t < 0.5
-      ? ROCK_LOW.clone().lerp(ROCK_MID, t * 2)
-      : ROCK_MID.clone().lerp(ROCK_HIGH, (t - 0.5) * 2);
-
-  if (veinAmount > 0) {
-    const veinColor = veinAmount < 0.5 ? ROCK_VEIN_DARK : ROCK_VEIN_LIGHT;
-    const strength = Math.min(1, Math.abs(veinAmount - 0.5) * 2) * 0.4;
-    color.lerp(veinColor, strength);
-  }
-
-  const grainColor = grainAmount < 0.5 ? ROCK_GRAIN_DARK : ROCK_GRAIN_LIGHT;
-  const grainStrength = Math.min(1, Math.abs(grainAmount - 0.5) * 2) * 0.12;
-  color.lerp(grainColor, grainStrength);
-
-  return color;
-}
-
-const GRID_SPACING = 4;
-const GRID_LINE_WIDTH = 0.12;
-
-function gridLineFactor(x: number, z: number): number {
-  const nx = Math.abs(((x % GRID_SPACING) + GRID_SPACING) % GRID_SPACING);
-  const nz = Math.abs(((z % GRID_SPACING) + GRID_SPACING) % GRID_SPACING);
-  const distX = Math.min(nx, GRID_SPACING - nx);
-  const distZ = Math.min(nz, GRID_SPACING - nz);
-  const dist = Math.min(distX, distZ);
-  return dist < GRID_LINE_WIDTH ? 1 - dist / GRID_LINE_WIDTH : 0;
-}
-
 export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
   const geometry = new PlaneGeometry(
     config.width,
@@ -92,26 +49,14 @@ export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
   geometry.rotateX(-Math.PI / 2);
 
   const position = geometry.attributes.position;
-  const colors = new Float32Array(position.count * 3);
-  const color = new Color();
-  const gridTint = new Color("#3fd6ff");
 
   for (let i = 0; i < position.count; i += 1) {
     const x = position.getX(i);
     const z = position.getZ(i) + config.centerZ;
     const y = valleyHeightAt(x, z, config);
     position.setY(i, y);
-    const veinAmount = veinNoise2D(x * 0.6, z * 0.6) * 0.5 + 0.5;
-    const grainAmount = grainNoise2D(x * 2.4, z * 2.4) * 0.5 + 0.5;
-    color.copy(heightColor(y, veinAmount, grainAmount));
-    const grid = gridLineFactor(x, z) * 0.1;
-    color.lerp(gridTint, grid);
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
   }
 
-  geometry.setAttribute("color", new Float32BufferAttribute(colors, 3));
   geometry.computeVertexNormals();
 
   const normal = geometry.attributes.normal;
@@ -119,9 +64,8 @@ export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
     const x = position.getX(i);
     const z = position.getZ(i) + config.centerZ;
     const jitter = detailNoise2D(x * 0.35, z * 0.35) * 0.12;
-    const grainJitter = grainNoise2D(x * 2.4, z * 2.4) * 0.06;
-    normal.setX(i, normal.getX(i) + jitter + grainJitter);
-    normal.setZ(i, normal.getZ(i) + jitter * 0.6 + grainJitter * 0.7);
+    normal.setX(i, normal.getX(i) + jitter);
+    normal.setZ(i, normal.getZ(i) + jitter * 0.6);
   }
   normal.needsUpdate = true;
 
