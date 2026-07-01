@@ -8,9 +8,6 @@ import { getCameraPositionAt } from "@/lib/cameraPath";
 import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { HeadlightBeacon } from "./HeadlightBeacon";
-import { ValleyFilaments } from "./ValleyFilaments";
-import { ValleyWater } from "./ValleyWater";
-import { DistantPanorama } from "./DistantPanorama";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 
@@ -56,15 +53,12 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       <hemisphereLight args={["#00b4ff", "#1a1712", 0.24]} />
       <RimLight scrollProgress={scrollProgress} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
-      <DistantPanorama />
       <ValleyTerrain
         segments={segments}
         reducedMotion={reducedMotion}
         mouse={mouse}
         scrollProgress={scrollProgress}
       />
-      <ValleyFilaments scrollProgress={scrollProgress} />
-      <ValleyWater scrollProgress={scrollProgress} />
       <HeadlightBeacon
         scrollProgress={scrollProgress}
         reducedMotion={reducedMotion}
