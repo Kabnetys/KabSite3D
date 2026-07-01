@@ -32,8 +32,9 @@ export function valleyHeightAt(
   config: Pick<ValleyConfig, "noiseHeight" | "valleyDepth" | "valleyWidth">
 ): number {
   const n = noise2D(x * 0.015, z * 0.015);
-  const detail = detailNoise2D(x * 0.08, z * 0.08) * 0.6;
-  const ridge = n * config.noiseHeight + detail;
+  const detail = detailNoise2D(x * 0.08, z * 0.08) * 2.8;
+  const fineDetail = detailNoise2D(x * 0.22 + 100, z * 0.22 + 100) * 1.1;
+  const ridge = n * config.noiseHeight + detail + fineDetail;
   const carve = config.valleyDepth * Math.exp(-(x * x) / (config.valleyWidth * config.valleyWidth));
   return ridge - carve;
 }

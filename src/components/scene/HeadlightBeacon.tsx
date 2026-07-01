@@ -28,7 +28,12 @@ export function HeadlightBeacon({ scrollProgress, reducedMotion, mouse }: Headli
 
     getCameraPositionAt(scrollProgress, cameraPos.current);
     getLookAtPositionAt(scrollProgress, lookAtPos.current);
-    direction.current.subVectors(lookAtPos.current, cameraPos.current).normalize();
+    direction.current.subVectors(lookAtPos.current, cameraPos.current);
+    if (direction.current.lengthSq() < 1e-4) {
+      direction.current.set(0, 0, -1);
+    } else {
+      direction.current.normalize();
+    }
     targetPos.current.copy(cameraPos.current).addScaledVector(direction.current, BEACON_DISTANCE);
 
     const smoothing = reducedMotion ? 1 : 1 - Math.exp(-4 * delta);

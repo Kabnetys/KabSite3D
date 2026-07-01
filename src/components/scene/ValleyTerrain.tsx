@@ -49,10 +49,10 @@ export function ValleyTerrain({ segments, reducedMotion, mouse }: ValleyTerrainP
 
   return (
     <>
-      <mesh ref={groundRef} geometry={groundGeometry} position={[0, 0, 0]} receiveShadow>
+      <mesh ref={groundRef} geometry={groundGeometry} position={[0, 0, config.centerZ]} receiveShadow>
         <meshStandardMaterial vertexColors roughness={0.9} metalness={0.1} />
       </mesh>
-      <mesh geometry={skyGeometry} position={[0, 0, 0]}>
+      <mesh geometry={skyGeometry} position={[0, 0, config.centerZ]}>
         <meshStandardMaterial color="#05040a" roughness={1} metalness={0} side={2} />
       </mesh>
     </>
