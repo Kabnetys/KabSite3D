@@ -65,7 +65,7 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
     [repeatZ, maxAnisotropy]
   );
 
-  const [diffuseMap, normalMap, roughnessMap] = useTexture(
+  const [diffuseMap, , roughnessMap] = useTexture(
     [
       "/textures/rock/rock-diffuse.webp",
       "/textures/rock/rock-normal.webp",
@@ -92,7 +92,6 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
         <meshStandardMaterial
           ref={groundMaterialRef}
           map={diffuseMap}
-          normalMap={normalMap}
           roughnessMap={roughnessMap}
           roughness={0.96}
           metalness={0.03}
