@@ -1,5 +1,5 @@
-import { CityExperience } from "@/components/scene/CityExperience";
+import { ValleyExperience } from "@/components/scene/ValleyExperience";
 
 export default function Home() {
-  return <CityExperience />;
+  return <ValleyExperience />;
 }

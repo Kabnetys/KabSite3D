@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
-import { DISTRICTS, getActiveDistrictIndex, getDistrictBySlug } from "@/lib/districts";
+import { CHAPTERS, getActiveChapterIndex, getChapterBySlug } from "@/lib/chapters";
 import { useReducedMotion } from "./useReducedMotion";
 
 if (typeof window !== "undefined") {
@@ -13,24 +13,24 @@ function getScrollTargetForProgress(progress: number): number {
   return progress * maxScroll;
 }
 
-export function useDistrictNavigation(scrollProgress: number) {
+export function useChapterNavigation(scrollProgress: number) {
   const reducedMotion = useReducedMotion();
   const lastSyncedSlug = useRef<string | null>(null);
 
   useEffect(() => {
-    const activeIndex = getActiveDistrictIndex(scrollProgress);
-    const slug = DISTRICTS[activeIndex].slug;
+    const activeIndex = getActiveChapterIndex(scrollProgress);
+    const slug = CHAPTERS[activeIndex].slug;
     if (lastSyncedSlug.current === slug) return;
     lastSyncedSlug.current = slug;
     const url = `${window.location.pathname}#${slug}`;
     window.history.replaceState(null, "", url);
   }, [scrollProgress]);
 
-  const goToDistrict = useCallback(
+  const goToChapter = useCallback(
     (slug: string) => {
-      const district = getDistrictBySlug(slug);
-      if (!district) return;
-      const target = getScrollTargetForProgress(district.scrollProgress);
+      const chapter = getChapterBySlug(slug);
+      if (!chapter) return;
+      const target = getScrollTargetForProgress(chapter.scrollProgress);
 
       if (reducedMotion) {
         window.scrollTo({ top: target, behavior: "auto" });
@@ -48,14 +48,14 @@ export function useDistrictNavigation(scrollProgress: number) {
 
   const goToOffset = useCallback(
     (offset: number) => {
-      const activeIndex = getActiveDistrictIndex(scrollProgress);
+      const activeIndex = getActiveChapterIndex(scrollProgress);
       const nextIndex = Math.min(
-        DISTRICTS.length - 1,
+        CHAPTERS.length - 1,
         Math.max(0, activeIndex + offset)
       );
-      goToDistrict(DISTRICTS[nextIndex].slug);
+      goToChapter(CHAPTERS[nextIndex].slug);
     },
-    [scrollProgress, goToDistrict]
+    [scrollProgress, goToChapter]
   );
 
   useEffect(() => {
@@ -75,14 +75,14 @@ export function useDistrictNavigation(scrollProgress: number) {
   useEffect(() => {
     const hash = window.location.hash.replace("#", "");
     if (!hash) return;
-    const district = getDistrictBySlug(hash);
-    if (!district) return;
+    const chapter = getChapterBySlug(hash);
+    if (!chapter) return;
     const raf = requestAnimationFrame(() => {
-      const target = getScrollTargetForProgress(district.scrollProgress);
+      const target = getScrollTargetForProgress(chapter.scrollProgress);
       window.scrollTo({ top: target, behavior: "auto" });
     });
     return () => cancelAnimationFrame(raf);
   }, []);
 
-  return { goToDistrict, goToOffset };
+  return { goToChapter, goToOffset };
 }

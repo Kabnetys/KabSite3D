@@ -1,4 +1,4 @@
-import { DISTRICTS } from "@/lib/districts";
+import { CHAPTERS } from "@/lib/chapters";
 
 interface TextVersionProps {
   onClose?: () => void;
@@ -21,12 +21,12 @@ export function TextVersion({ onClose }: TextVersionProps) {
           ) : null}
         </div>
         <ul className="flex flex-col gap-6">
-          {DISTRICTS.map((district) => (
-            <li key={district.id} id={district.slug} className="border-b border-white/10 pb-6">
-              <a href={`#${district.slug}`} className="text-lg font-medium text-[#00e5ff]">
-                {district.label}
+          {CHAPTERS.map((chapter) => (
+            <li key={chapter.id} id={chapter.slug} className="border-b border-white/10 pb-6">
+              <a href={`#${chapter.slug}`} className="text-lg font-medium text-[#00e5ff]">
+                {chapter.label}
               </a>
-              <p className="mt-2 text-sm text-[#e8f4ff]/70">{district.placeholder}</p>
+              <p className="mt-2 text-sm text-[#e8f4ff]/70">{chapter.placeholder}</p>
             </li>
           ))}
         </ul>

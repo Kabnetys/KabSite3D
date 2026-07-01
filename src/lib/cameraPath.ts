@@ -1,17 +1,17 @@
 import { CatmullRomCurve3, Vector3 } from "three";
-import { DISTRICTS } from "./districts";
+import { CHAPTERS } from "./chapters";
 
 function buildCameraPoints(): Vector3[] {
-  return DISTRICTS.map((district) => {
-    const [x, y, z] = district.position;
-    return new Vector3(x, y + 6, z + 10);
+  return CHAPTERS.map((chapter) => {
+    const [x, y, z] = chapter.position;
+    return new Vector3(x, y + 2.4, z + 8);
   });
 }
 
 function buildLookAtPoints(): Vector3[] {
-  return DISTRICTS.map((district) => {
-    const [x, y, z] = district.position;
-    return new Vector3(x, y, z);
+  return CHAPTERS.map((chapter) => {
+    const [x, y, z] = chapter.position;
+    return new Vector3(x, y - 3, z - 14);
   });
 }
 

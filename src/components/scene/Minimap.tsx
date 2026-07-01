@@ -1,4 +1,4 @@
-import { DISTRICTS, getActiveDistrictIndex } from "@/lib/districts";
+import { CHAPTERS, getActiveChapterIndex } from "@/lib/chapters";
 import { PALETTE } from "@/lib/palette";
 
 interface MinimapProps {
@@ -19,16 +19,16 @@ function toMinimapCoords(index: number, total: number) {
 }
 
 export function Minimap({ scrollProgress, onSelect }: MinimapProps) {
-  const activeIndex = getActiveDistrictIndex(scrollProgress);
-  const points = DISTRICTS.map((district, index) => ({
-    district,
+  const activeIndex = getActiveChapterIndex(scrollProgress);
+  const points = CHAPTERS.map((chapter, index) => ({
+    chapter,
     index,
-    ...toMinimapCoords(index, DISTRICTS.length),
+    ...toMinimapCoords(index, CHAPTERS.length),
   }));
 
   return (
     <nav
-      aria-label="Navigation de la cite KabNetys"
+      aria-label="Navigation de la vallee KabNetys"
       className="pointer-events-auto fixed right-4 top-1/2 z-30 -translate-y-1/2 rounded-xl border border-white/10 bg-black/40 p-3 backdrop-blur-md"
       style={{ width: MINIMAP_WIDTH + 24 }}
     >
@@ -57,7 +57,7 @@ export function Minimap({ scrollProgress, onSelect }: MinimapProps) {
           const isActive = point.index === activeIndex;
           return (
             <circle
-              key={point.district.id}
+              key={point.chapter.id}
               cx={point.x}
               cy={point.y}
               r={isActive ? 7 : 4.5}
@@ -70,11 +70,11 @@ export function Minimap({ scrollProgress, onSelect }: MinimapProps) {
         })}
       </svg>
       <ul className="mt-2 flex flex-col gap-1">
-        {DISTRICTS.map((district, index) => (
-          <li key={district.id}>
+        {CHAPTERS.map((chapter, index) => (
+          <li key={chapter.id}>
             <button
               type="button"
-              onClick={() => onSelect(district.slug)}
+              onClick={() => onSelect(chapter.slug)}
               aria-current={index === activeIndex ? "true" : undefined}
               className={`w-full rounded px-2 py-1 text-left text-xs transition-colors ${
                 index === activeIndex
@@ -82,7 +82,7 @@ export function Minimap({ scrollProgress, onSelect }: MinimapProps) {
                   : "text-[#e8f4ff]/60 hover:text-[#e8f4ff]"
               }`}
             >
-              {district.label}
+              {chapter.label}
             </button>
           </li>
         ))}
