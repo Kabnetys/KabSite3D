@@ -12,7 +12,6 @@ import { ValleyFilaments } from "./ValleyFilaments";
 import { ValleyWater } from "./ValleyWater";
 import { DistantPanorama } from "./DistantPanorama";
 import { CameraRig } from "./CameraRig";
-import { PostFX } from "./PostFX";
 import { Vector3 } from "three";
 
 interface SceneProps {
@@ -89,7 +88,6 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
         mouse={mouse}
       />
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
-      {highQuality && <PostFX highQuality={highQuality} />}
     </Canvas>
   );
 }
