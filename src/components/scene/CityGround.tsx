@@ -8,7 +8,7 @@ export function CityGround() {
   const centerZ = (firstZ + lastZ) / 2;
 
   return (
-    <mesh position={[0, -0.5, centerZ]} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh position={[0, -0.5, centerZ]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <planeGeometry args={[120, length]} />
       <meshStandardMaterial color={PALETTE.background} roughness={1} metalness={0} />
     </mesh>
