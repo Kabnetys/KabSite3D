@@ -61,12 +61,6 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       gl={{ antialias: highQuality }}
       shadows={highQuality}
       camera={{ fov: 62, near: 0.1, far: 900 }}
-      onCreated={({ gl }) => {
-        const canvas = gl.domElement;
-        canvas.addEventListener("webglcontextlost", (event) => {
-          event.preventDefault();
-        });
-      }}
     >
       <color attach="background" args={["#040d1a"]} />
       <ambientLight intensity={0.16} color="#8a8478" />
