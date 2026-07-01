@@ -87,7 +87,7 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
 
   return (
     <>
-      <mesh ref={groundRef} geometry={groundGeometry} position={[0, 0, config.centerZ]} receiveShadow>
+      <mesh ref={groundRef} geometry={groundGeometry} position={[0, 0, config.centerZ]}>
         <meshStandardMaterial
           ref={groundMaterialRef}
           map={diffuseMap}

@@ -21,12 +21,11 @@ interface SceneProps {
 
 interface RimLightProps {
   scrollProgress: number;
-  castShadow: boolean;
 }
 
 const camPos = new Vector3();
 
-function RimLight({ scrollProgress, castShadow }: RimLightProps) {
+function RimLight({ scrollProgress }: RimLightProps) {
   const lightRef = useRef<DirectionalLight>(null);
 
   useFrame(() => {
@@ -37,16 +36,7 @@ function RimLight({ scrollProgress, castShadow }: RimLightProps) {
     lightRef.current.target.updateMatrixWorld();
   });
 
-  return (
-    <directionalLight
-      ref={lightRef}
-      color="#dce8ff"
-      intensity={1.4}
-      castShadow={castShadow}
-      shadow-mapSize={[1024, 1024]}
-      shadow-bias={-0.0015}
-    />
-  );
+  return <directionalLight ref={lightRef} color="#dce8ff" intensity={1.4} castShadow={false} />;
 }
 
 export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
@@ -59,13 +49,12 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
     <Canvas
       dpr={highQuality ? [1, 1.75] : [1, 1]}
       gl={{ antialias: highQuality }}
-      shadows={highQuality}
       camera={{ fov: 62, near: 0.1, far: 900 }}
     >
       <color attach="background" args={["#040d1a"]} />
       <ambientLight intensity={0.16} color="#8a8478" />
       <hemisphereLight args={["#00b4ff", "#1a1712", 0.24]} />
-      <RimLight scrollProgress={scrollProgress} castShadow={highQuality} />
+      <RimLight scrollProgress={scrollProgress} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
       <DistantPanorama />
       <ValleyTerrain
