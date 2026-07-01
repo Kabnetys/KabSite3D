@@ -192,3 +192,21 @@ Après premier test réel en local par le client :
    seulement dans le chapitre Intelligence : un flux lumineux continu le long de l'axe central
    de la vallée, dont le mouvement (pulse/défilement) est synchronisé avec la vitesse de
    scroll, visible sur une bonne partie du parcours.
+
+---
+
+## 11. Retours de test (v2.2) — deuxième vague de raffinements
+
+0. **Sphère lumineuse au centre de l'écran** — le "phare" visible en permanence au milieu de
+   l'écran n'apporte rien, à supprimer (ou fortement réduire sa présence visuelle).
+1. **Transitions toujours trop fréquentes** — les flashs blancs reviennent encore trop souvent,
+   à réduire nettement en fréquence et en intensité.
+2. **Texture de roche** — encore à améliorer, pas assez convaincante.
+3. **Eau et panorama à revoir entièrement** — au loin, dès le début du parcours, on doit
+   apercevoir l'étendue d'eau et le ciel étoilé en arrière-plan (pas seulement de la roche à
+   l'horizon) ; le ciel étoilé peut être visible tout le long du scroll, pas juste dans
+   certains chapitres. Le premier plan reste rocheux, mais l'eau et les étoiles doivent se
+   deviner au loin bien avant le chapitre Horizon.
+4. **Filaments** — toujours présents mais à revoir : un filament plus épais (moins nombreux,
+   plus visible) qui suit la position réelle du scroll en temps réel, sans décalage ni
+   "avance" autonome dans le temps.
