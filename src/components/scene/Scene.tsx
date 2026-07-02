@@ -14,116 +14,142 @@ import { AppMockupModel } from "./AppMockupModel";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
-import { computeChapterPanelTransform } from "@/lib/chapterPanels";
+import { computePanelTransformAtProgress } from "@/lib/chapterPanels";
 
 interface ChapterPanelConfig {
-  chapterIndex: number;
+  id: string;
   heading?: string;
   lines: string[];
+  /** Point along the continuous scroll (0..1) where this beat peaks. */
+  peakProgress: number;
+  /** Half-width of the smooth fade-in/fade-out window around peakProgress. */
+  fadeHalfWidth: number;
   distance: number;
   lateral: number;
   vertical: number;
 }
 
-// Real copy pulled from KabSit (the static marketing site)'s src/messages/fr.json,
-// remapped onto the valley's six scroll-stops:
-//   Aube -> hero, Friction -> method's first step (discovery), Percee -> services,
-//   Intelligence -> the app-mockup section, Equipe -> team, Horizon -> contact.
+// A short cinematic scenario told across the valley's flight, broken into
+// small narrative beats (rather than one dense panel per chapter). Several
+// beats can share the same chapter and appear one after another as the
+// camera continues past -- each one fades in, peaks, and fades back out on
+// its own, continuously tied to scrollProgress.
 const CHAPTER_PANELS: ChapterPanelConfig[] = [
+  // -- L'Aube : l'idée qui manquait --
   {
-    chapterIndex: 0,
+    id: "aube-1",
     heading: "L'AUBE",
-    lines: [
-      "Des outils métier,",
-      "pas des bricolages.",
-      "Développement sur mesure",
-      "pour les TPE et PME qui",
-      "veulent enfin des solutions",
-      "qui leur ressemblent.",
-    ],
-    distance: 10,
-    lateral: -2,
+    lines: ["Chaque artisan mérite", "un outil à son image."],
+    peakProgress: 0.02,
+    fadeHalfWidth: 0.06,
+    distance: 8,
+    lateral: -1.6,
+    vertical: 0.9,
+  },
+  // -- La Friction : le quotidien qui coince --
+  {
+    id: "friction-1",
+    lines: ["Excel qui déborde.", "Des versions qui se contredisent."],
+    peakProgress: 0.13,
+    fadeHalfWidth: 0.05,
+    distance: 8,
+    lateral: 1.7,
     vertical: 1,
   },
   {
-    chapterIndex: 1,
-    heading: "ÉCHANGE TERRAIN",
-    lines: [
-      "On pose les bonnes",
-      "questions avant d'écrire",
-      "la moindre ligne de code.",
-      "On préfère commencer",
-      "par une présence physique.",
-    ],
-    distance: 10,
-    lateral: 2,
+    id: "friction-2",
+    lines: ["Le temps perdu,", "ça suffit."],
+    peakProgress: 0.19,
+    fadeHalfWidth: 0.05,
+    distance: 7.5,
+    lateral: -1.5,
+    vertical: 0.7,
+  },
+  // -- La Percee : on construit la solution --
+  {
+    id: "percee-1",
+    heading: "LA PERCÉE",
+    lines: ["Alors on construit."],
+    peakProgress: 0.32,
+    fadeHalfWidth: 0.05,
+    distance: 8,
+    lateral: -1.8,
     vertical: 1,
   },
   {
-    chapterIndex: 2,
-    heading: "SERVICES",
-    lines: [
-      "Applications métier",
-      "Sites internet",
-      "Automatisation",
-      "Sur mesure, sécurisé,",
-      "zéro ressaisie.",
-    ],
-    distance: 10,
-    lateral: -2,
-    vertical: 1,
+    id: "percee-2",
+    lines: ["Applications métier.", "Sites. Automatisation."],
+    peakProgress: 0.4,
+    fadeHalfWidth: 0.06,
+    distance: 8,
+    lateral: 1.6,
+    vertical: 0.8,
   },
+  // -- L'Intelligence : l'IA au service du geste --
   {
-    chapterIndex: 3,
-    heading: "APPLICATIONS",
-    lines: [
-      "Des interfaces qui",
-      "travaillent pour vous.",
-      "Multi-utilisateurs,",
-      "sécurisée, évolutive,",
-      "sur mesure.",
-    ],
-    distance: 10,
-    lateral: 2.4,
-    vertical: 1.2,
+    id: "intelligence-1",
+    heading: "L'INTELLIGENCE",
+    lines: ["L'IA propose,", "on dispose."],
+    peakProgress: 0.55,
+    fadeHalfWidth: 0.07,
+    distance: 8,
+    lateral: 2.2,
+    vertical: 1.1,
   },
+  // -- L'Equipe : deux visages derriere le projet --
   {
-    chapterIndex: 4,
+    id: "equipe-1",
     heading: "L'ÉQUIPE",
-    lines: [
-      "Anthony Bonjour",
-      "Directeur Général",
-      "Kyllian Bletrix",
-      "Président",
-      "Deux profils,",
-      "un spectre complet.",
-    ],
-    distance: 10,
-    lateral: -2,
+    lines: ["Anthony & Kyllian."],
+    peakProgress: 0.68,
+    fadeHalfWidth: 0.05,
+    distance: 8,
+    lateral: -1.6,
     vertical: 1,
   },
   {
-    chapterIndex: 5,
-    heading: "CONTACT",
-    lines: ["Parlons de votre projet.", "On vous répond sous 24h."],
-    distance: 9,
-    lateral: 3,
-    vertical: 0.5,
+    id: "equipe-2",
+    lines: ["Deux regards,", "un seul objectif : vous."],
+    peakProgress: 0.74,
+    fadeHalfWidth: 0.05,
+    distance: 7.5,
+    lateral: 1.6,
+    vertical: 0.8,
+  },
+  // -- L'Horizon : le depart d'une nouvelle histoire --
+  {
+    id: "horizon-1",
+    heading: "L'HORIZON",
+    lines: ["Votre projet", "commence ici."],
+    peakProgress: 0.85,
+    fadeHalfWidth: 0.06,
+    distance: 8,
+    lateral: -1.8,
+    vertical: 1,
+  },
+  {
+    id: "horizon-2",
+    lines: ["Parlons-en."],
+    peakProgress: 0.93,
+    fadeHalfWidth: 0.06,
+    distance: 7,
+    lateral: 1.5,
+    vertical: 0.7,
   },
 ];
 
 const CHAPTER_PANEL_TRANSFORMS = CHAPTER_PANELS.map((config) => ({
   config,
-  transform: computeChapterPanelTransform(
-    config.chapterIndex,
+  transform: computePanelTransformAtProgress(
+    config.peakProgress,
     config.distance,
     config.lateral,
     config.vertical
   ),
 }));
 
-const INTELLIGENCE_CHAPTER_INDEX = 3;
-const APP_MOCKUP_TRANSFORM = computeChapterPanelTransform(INTELLIGENCE_CHAPTER_INDEX, 10, -3, 0.5);
+const INTELLIGENCE_PEAK_PROGRESS = 0.55;
+const APP_MOCKUP_TRANSFORM = computePanelTransformAtProgress(INTELLIGENCE_PEAK_PROGRESS, 9, -3, 0.5);
 
 interface SceneProps {
   scrollProgress: number;
@@ -190,15 +216,16 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
       <Suspense fallback={null}>
         {CHAPTER_PANEL_TRANSFORMS.map(({ config, transform }) => (
           <group
-            key={config.chapterIndex}
+            key={config.id}
             position={transform.position}
             rotation={[0, transform.rotationY, 0]}
           >
             <ChapterTextModule3D
-              chapterIndex={config.chapterIndex}
               heading={config.heading}
               lines={config.lines}
               scrollProgress={scrollProgress}
+              peakProgress={config.peakProgress}
+              fadeHalfWidth={config.fadeHalfWidth}
             />
           </group>
         ))}

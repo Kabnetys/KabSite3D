@@ -10,13 +10,14 @@ import {
   MeshStandardMaterial,
   Shape,
 } from "three";
-import { getChapterBlend } from "@/lib/chapters";
+import { getPanelVisibility } from "@/lib/chapters";
 
 interface ChapterTextModule3DProps {
-  chapterIndex: number;
   heading?: string;
   lines: string[];
   scrollProgress: number;
+  peakProgress: number;
+  fadeHalfWidth?: number;
   textSize?: number;
 }
 
@@ -25,16 +26,20 @@ const PANEL_COLOR = "#04122e";
 const EDGE_RGB = "80,220,255";
 const TEXT_RGB = "225,255,255";
 const HEADING_RGB = "120,225,255";
-const DEFAULT_TEXT_SIZE = 0.28;
-const HEADING_SCALE = 1.35;
-const TEXT_DEPTH = 0.045;
-const HEADING_DEPTH = 0.06;
-const PANEL_DEPTH = 0.12;
-const FADE_WIDTH = 0.05;
+// At the ~7-9 unit viewing distance these panels are placed and a 62deg
+// vertical FOV, the previous 0.28 size read as a thin sliver taking up only
+// ~3% of the screen height -- bumped so a line of text reads comfortably at
+// a glance while flying past.
+const DEFAULT_TEXT_SIZE = 0.6;
+const DEFAULT_FADE_HALF_WIDTH = 0.06;
+const HEADING_SCALE = 1.3;
+const TEXT_DEPTH = 0.05;
+const HEADING_DEPTH = 0.07;
+const PANEL_DEPTH = 0.14;
 const CHAR_WIDTH_FACTOR = 0.56;
-const MAX_PANEL_WIDTH = 7.2;
-const MIN_PANEL_WIDTH = 3.6;
-const SIDE_MARGIN = 0.4;
+const MAX_PANEL_WIDTH = 8.5;
+const MIN_PANEL_WIDTH = 3.2;
+const SIDE_MARGIN = 0.45;
 
 function buildChamferedRectShape(width: number, height: number, chamfer: number): Shape {
   const w = width / 2;
@@ -53,10 +58,11 @@ function buildChamferedRectShape(width: number, height: number, chamfer: number)
 }
 
 export function ChapterTextModule3D({
-  chapterIndex,
   heading,
   lines,
   scrollProgress,
+  peakProgress,
+  fadeHalfWidth = DEFAULT_FADE_HALF_WIDTH,
   textSize = DEFAULT_TEXT_SIZE,
 }: ChapterTextModule3DProps) {
   const groupRef = useRef<Group>(null);
@@ -95,13 +101,7 @@ export function ChapterTextModule3D({
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return;
-    const { index, t } = getChapterBlend(scrollProgress);
-    let visibility = 0;
-    if (index === chapterIndex) {
-      visibility = t > 1 - FADE_WIDTH ? Math.max(0, (1 - t) / FADE_WIDTH) : 1;
-    } else if (index === chapterIndex - 1) {
-      visibility = Math.min(1, t / FADE_WIDTH);
-    }
+    const visibility = getPanelVisibility(scrollProgress, peakProgress, fadeHalfWidth);
 
     groupRef.current.visible = visibility > 0.01;
 

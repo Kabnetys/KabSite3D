@@ -87,3 +87,28 @@ export function getChapterBlend(progress: number): { index: number; t: number } 
   const t = span > 0 ? Math.min(1, Math.max(0, (progress - start) / span)) : 0;
   return { index: activeIndex, t };
 }
+
+function clamp01(value: number): number {
+  return Math.min(1, Math.max(0, value));
+}
+
+// Smooth 1 -> 0 falloff (cubic smoothstep, continuous first derivative) as
+// `distance` grows from 0 to `halfWidth`. Used to fade floating panels in
+// and back out continuously as scrollProgress passes their peak, instead of
+// the old hold-based binary-ish visibility.
+function smoothFalloff(distance: number, halfWidth: number): number {
+  if (halfWidth <= 0) return distance <= 0 ? 1 : 0;
+  const t = clamp01(distance / halfWidth);
+  return 1 - t * t * (3 - 2 * t);
+}
+
+// Continuous visibility (0..1) for a narrative beat/panel anchored at
+// `peakProgress`: rises smoothly as scrollProgress approaches it, peaks at
+// 1, then fades back down as scrollProgress moves past -- no hard cuts.
+export function getPanelVisibility(
+  progress: number,
+  peakProgress: number,
+  fadeHalfWidth: number
+): number {
+  return smoothFalloff(Math.abs(progress - peakProgress), fadeHalfWidth);
+}

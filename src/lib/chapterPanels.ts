@@ -1,5 +1,4 @@
 import { Vector3 } from "three";
-import { CHAPTERS } from "./chapters";
 import { getCameraPositionAt, getLookAtPositionAt } from "./cameraPath";
 
 export interface ChapterPanelTransform {
@@ -15,20 +14,19 @@ const right = new Vector3();
 const panelPos = new Vector3();
 const toCam = new Vector3();
 
-// Anchors a text panel directly in the camera's view for a given chapter's
-// held viewpoint (the scroll-hold position from remapScrollForStops), so it
-// reads clearly during the pause instead of sitting off to the side where
-// it's only glimpsed when the mouse-driven camera drift happens to swing
-// past it.
-export function computeChapterPanelTransform(
-  chapterIndex: number,
+// Anchors a floating text/mockup panel directly in the camera's forward view
+// at a given point along the continuous scroll (progress, 0..1), so it reads
+// clearly as the camera flies past. Multiple panels can share the same
+// chapter but use different `progress` values to stagger several short
+// narrative beats one after another within that chapter's scroll span.
+export function computePanelTransformAtProgress(
+  progress: number,
   distance: number,
   lateral: number,
   vertical: number
 ): ChapterPanelTransform {
-  const chapter = CHAPTERS[chapterIndex];
-  getCameraPositionAt(chapter.scrollProgress, camPos);
-  getLookAtPositionAt(chapter.scrollProgress, lookAtPos);
+  getCameraPositionAt(progress, camPos);
+  getLookAtPositionAt(progress, lookAtPos);
   forward.subVectors(lookAtPos, camPos).normalize();
   right.crossVectors(forward, worldUp).normalize();
 
