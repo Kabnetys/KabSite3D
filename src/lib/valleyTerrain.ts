@@ -30,10 +30,6 @@ const COAST_FALLOFF_START_Z = -220;
 const COAST_FALLOFF_END_Z = -400;
 const COAST_MIN_RIDGE_SCALE = 0.03;
 
-const EDGE_FALLOFF_START_X = 100;
-const EDGE_FALLOFF_END_X = 195;
-const EDGE_MIN_RIDGE_SCALE = 0.02;
-
 function coastalRidgeScale(z: number): number {
   const t = Math.min(
     1,
@@ -41,16 +37,6 @@ function coastalRidgeScale(z: number): number {
   );
   const smooth = t * t * (3 - 2 * t);
   return 1 - smooth * (1 - COAST_MIN_RIDGE_SCALE);
-}
-
-function edgeRidgeScale(x: number): number {
-  const ax = Math.abs(x);
-  const t = Math.min(
-    1,
-    Math.max(0, (ax - EDGE_FALLOFF_START_X) / (EDGE_FALLOFF_END_X - EDGE_FALLOFF_START_X))
-  );
-  const smooth = t * t * (3 - 2 * t);
-  return 1 - smooth * (1 - EDGE_MIN_RIDGE_SCALE);
 }
 
 export function valleyHeightAt(
@@ -61,8 +47,7 @@ export function valleyHeightAt(
   const n = noise2D(x * 0.015, z * 0.015);
   const detail = detailNoise2D(x * 0.08, z * 0.08) * 2.8;
   const fineDetail = detailNoise2D(x * 0.22 + 100, z * 0.22 + 100) * 1.1;
-  const ridge =
-    (n * config.noiseHeight + detail + fineDetail) * coastalRidgeScale(z) * edgeRidgeScale(x);
+  const ridge = (n * config.noiseHeight + detail + fineDetail) * coastalRidgeScale(z);
   const carve = config.valleyDepth * Math.exp(-(x * x) / (config.valleyWidth * config.valleyWidth));
   return ridge - carve;
 }
