@@ -34,7 +34,7 @@ function RimLight({ scrollProgress }: RimLightProps) {
     lightRef.current.target.updateMatrixWorld();
   });
 
-  return <directionalLight ref={lightRef} color="#dce8ff" intensity={1.4} castShadow={false} />;
+  return <directionalLight ref={lightRef} color="#dce8ff" intensity={2} castShadow={false} />;
 }
 
 export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
@@ -50,8 +50,8 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       camera={{ fov: 62, near: 0.1, far: 900 }}
     >
       <color attach="background" args={["#040d1a"]} />
-      <ambientLight intensity={0.16} color="#8a8478" />
-      <hemisphereLight args={["#00b4ff", "#1a1712", 0.24]} />
+      <ambientLight intensity={0.28} color="#8a8478" />
+      <hemisphereLight args={["#00b4ff", "#1a1712", 0.36]} />
       <RimLight scrollProgress={scrollProgress} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
       <Moon />
