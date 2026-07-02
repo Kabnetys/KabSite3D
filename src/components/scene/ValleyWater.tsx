@@ -23,9 +23,9 @@ const WATER_LENGTH = 700;
 const WATER_SEGMENTS = 72;
 const WATER_RISE_DISTANCE = 14;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
-const TEXTURE_REPEAT = 40;
-const FLOW_SPEED_X = 0.006;
-const FLOW_SPEED_Y = 0.009;
+const TEXTURE_REPEAT = 16;
+const FLOW_SPEED_X = 0.05;
+const FLOW_SPEED_Y = 0.08;
 const WAVE_NOISE = createNoise2D(() => 0.61);
 const DETAIL_NOISE = createNoise2D(() => 0.34);
 
