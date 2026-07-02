@@ -13,21 +13,76 @@ import { ChapterTextModule3D } from "./ChapterTextModule3D";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
-import { CHAPTERS } from "@/lib/chapters";
-import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
+import { computeChapterPanelTransform } from "@/lib/chapterPanels";
 
-const AUBE_CHAPTER_INDEX = 0;
-const AUBE_TEXT_LINES = [
-  "Pour chaque artisan,",
-  "un outil sur mesure.",
-  "KabNetys imagine des",
-  "solutions pensées",
-  "pour votre métier.",
+interface ChapterPanelConfig {
+  chapterIndex: number;
+  lines: string[];
+  distance: number;
+  lateral: number;
+  vertical: number;
+}
+
+const CHAPTER_PANELS: ChapterPanelConfig[] = [
+  {
+    chapterIndex: 0,
+    lines: [
+      "Pour chaque artisan,",
+      "un outil sur mesure.",
+      "KabNetys imagine des",
+      "solutions pensées",
+      "pour votre métier.",
+    ],
+    distance: 10,
+    lateral: -2,
+    vertical: 1,
+  },
+  {
+    chapterIndex: 1,
+    lines: ["Excel en versions", "multiples,", "erreurs de saisie,", "temps perdu."],
+    distance: 10,
+    lateral: 2,
+    vertical: 1,
+  },
+  {
+    chapterIndex: 2,
+    lines: ["Applications métier,", "sites internet,", "automatisation."],
+    distance: 10,
+    lateral: -2,
+    vertical: 1,
+  },
+  {
+    chapterIndex: 3,
+    lines: ["L'IA propose,", "on dispose.", "Un copilote,", "jamais un pilote."],
+    distance: 10,
+    lateral: 2,
+    vertical: 1,
+  },
+  {
+    chapterIndex: 4,
+    lines: ["Kyllian & Anthony.", "Deux devs,", "une exigence commune."],
+    distance: 10,
+    lateral: -2,
+    vertical: 1,
+  },
+  {
+    chapterIndex: 5,
+    lines: ["Votre projet", "commence ici."],
+    distance: 9,
+    lateral: 3,
+    vertical: 0.5,
+  },
 ];
-const aubeChapter = CHAPTERS[AUBE_CHAPTER_INDEX];
-const AUBE_TEXT_X = aubeChapter.position[0] + 9;
-const AUBE_TEXT_Z = aubeChapter.position[2] - 8;
-const AUBE_TEXT_Y = valleyHeightAt(AUBE_TEXT_X, AUBE_TEXT_Z, DEFAULT_VALLEY_CONFIG) + 7;
+
+const CHAPTER_PANEL_TRANSFORMS = CHAPTER_PANELS.map((config) => ({
+  config,
+  transform: computeChapterPanelTransform(
+    config.chapterIndex,
+    config.distance,
+    config.lateral,
+    config.vertical
+  ),
+}));
 
 interface SceneProps {
   scrollProgress: number;
@@ -92,13 +147,19 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
         <ValleyWater scrollProgress={scrollProgress} theme={theme} />
       </Suspense>
       <Suspense fallback={null}>
-        <group position={[AUBE_TEXT_X, AUBE_TEXT_Y, AUBE_TEXT_Z]} rotation={[0, -Math.PI * 0.12, 0]}>
-          <ChapterTextModule3D
-            chapterIndex={AUBE_CHAPTER_INDEX}
-            lines={AUBE_TEXT_LINES}
-            scrollProgress={scrollProgress}
-          />
-        </group>
+        {CHAPTER_PANEL_TRANSFORMS.map(({ config, transform }) => (
+          <group
+            key={config.chapterIndex}
+            position={transform.position}
+            rotation={[0, transform.rotationY, 0]}
+          >
+            <ChapterTextModule3D
+              chapterIndex={config.chapterIndex}
+              lines={config.lines}
+              scrollProgress={scrollProgress}
+            />
+          </group>
+        ))}
       </Suspense>
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
     </Canvas>
