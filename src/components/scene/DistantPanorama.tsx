@@ -25,10 +25,12 @@ const WATER_COLOR = new Color("#123a7a");
 // Matches the Canvas's own background color exactly (see Scene.tsx) so the
 // top of the backdrop blends away instead of showing as a visible seam.
 const SKY_COLOR = new Color("#040d1a");
-// How far down from the top (as a fraction of height) the color/alpha
-// finishes fading into the canvas background, so the plane's edges dissolve
-// instead of reading as a hard rectangular frame.
+// How far down from the top / up from the bottom (as a fraction of height)
+// the color/alpha finishes fading into transparency, so the plane's edges
+// dissolve instead of reading as a hard rectangular frame -- both against
+// the sky above and against the real water plane below.
 const TOP_FADE_FRACTION = 0.35;
+const BOTTOM_FADE_FRACTION = 0.35;
 
 function buildPanoramaGeometry(): PlaneGeometry {
   const geometry = new PlaneGeometry(
@@ -50,8 +52,9 @@ function buildBackdropGeometry(): PlaneGeometry {
     const y = position.getY(i);
     const t = Math.min(1, Math.max(0, (y + BACKDROP_HEIGHT / 2) / BACKDROP_HEIGHT));
     color.copy(WATER_COLOR).lerp(SKY_COLOR, t);
-    const fadeT = Math.min(1, Math.max(0, (t - (1 - TOP_FADE_FRACTION)) / TOP_FADE_FRACTION));
-    const alpha = 1 - fadeT;
+    const topFadeT = Math.min(1, Math.max(0, (t - (1 - TOP_FADE_FRACTION)) / TOP_FADE_FRACTION));
+    const bottomFadeT = Math.min(1, Math.max(0, (BOTTOM_FADE_FRACTION - t) / BOTTOM_FADE_FRACTION));
+    const alpha = 1 - Math.max(topFadeT, bottomFadeT);
     colors[i * 4] = color.r;
     colors[i * 4 + 1] = color.g;
     colors[i * 4 + 2] = color.b;
