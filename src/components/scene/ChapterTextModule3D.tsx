@@ -124,7 +124,7 @@ export function ChapterTextModule3D({ chapterIndex, lines, scrollProgress }: Cha
           {lines.map((line, i) => {
             const y = (lines.length - 1) * 0.5 * LINE_HEIGHT - i * LINE_HEIGHT - TEXT_SIZE * 0.35;
             return (
-              <group key={line} position={[-panelWidth / 2 + 0.35, y, 0.02]}>
+              <group key={line} position={[-panelWidth / 2 + 0.35, y, PANEL_DEPTH / 2 + 0.04]}>
                 <Text3D
                   font={FONT_URL}
                   size={TEXT_SIZE}
