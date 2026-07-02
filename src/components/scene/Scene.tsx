@@ -10,6 +10,7 @@ import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { ValleyWater } from "./ValleyWater";
 import { Moon } from "./Moon";
 import { KabNetysLogo3D } from "./KabNetysLogo3D";
+import { ChapterTextModule3D } from "./ChapterTextModule3D";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
@@ -24,6 +25,13 @@ const logoChapter = CHAPTERS[PERCEE_CHAPTER_INDEX];
 const LOGO_X = logoChapter.position[0] + LOGO_X_OFFSET;
 const LOGO_Z = logoChapter.position[2] + LOGO_Z_OFFSET;
 const LOGO_Y = valleyHeightAt(LOGO_X, LOGO_Z, DEFAULT_VALLEY_CONFIG) + LOGO_HOVER;
+
+const AUBE_CHAPTER_INDEX = 0;
+const AUBE_TEXT_LINES = ["Pour chaque artisan,", "un outil sur mesure."];
+const aubeChapter = CHAPTERS[AUBE_CHAPTER_INDEX];
+const AUBE_TEXT_X = aubeChapter.position[0] + 9;
+const AUBE_TEXT_Z = aubeChapter.position[2] - 8;
+const AUBE_TEXT_Y = valleyHeightAt(AUBE_TEXT_X, AUBE_TEXT_Z, DEFAULT_VALLEY_CONFIG) + 7;
 
 interface SceneProps {
   scrollProgress: number;
@@ -90,6 +98,15 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
       <Suspense fallback={null}>
         <group position={[LOGO_X, LOGO_Y, LOGO_Z]} rotation={[0, Math.PI * 0.15, 0]} scale={0.9}>
           <KabNetysLogo3D />
+        </group>
+      </Suspense>
+      <Suspense fallback={null}>
+        <group position={[AUBE_TEXT_X, AUBE_TEXT_Y, AUBE_TEXT_Z]} rotation={[0, -Math.PI * 0.12, 0]}>
+          <ChapterTextModule3D
+            chapterIndex={AUBE_CHAPTER_INDEX}
+            lines={AUBE_TEXT_LINES}
+            scrollProgress={scrollProgress}
+          />
         </group>
       </Suspense>
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
