@@ -11,24 +11,19 @@ interface CameraRigProps {
 }
 
 const MAX_YAW_OFFSET = (4 * Math.PI) / 180;
+const MAX_POSITION_DRIFT_X = 1.4;
+const MAX_POSITION_DRIFT_Y = 0.8;
 
 export function CameraRig({ scrollProgress, reducedMotion, mouse }: CameraRigProps) {
   const targetPosition = useRef(new Vector3());
   const targetLookAt = useRef(new Vector3());
   const currentLookAt = useRef(new Vector3());
   const mouseOffset = useRef(new Vector3());
+  const positionDrift = useRef(new Vector3());
 
   useFrame(({ camera }, delta) => {
     getCameraPositionAt(scrollProgress, targetPosition.current);
     getLookAtPositionAt(scrollProgress, targetLookAt.current);
-
-    if (typeof window !== "undefined") {
-      (window as unknown as { __debugCam: unknown }).__debugCam = {
-        scrollProgress,
-        camPos: camera.position.toArray(),
-        targetPos: targetPosition.current.toArray(),
-      };
-    }
 
     if (reducedMotion) {
       camera.position.copy(targetPosition.current);
@@ -45,6 +40,13 @@ export function CameraRig({ scrollProgress, reducedMotion, mouse }: CameraRigPro
     const desiredY = -mouse.current.y * MAX_YAW_OFFSET * 6;
     mouseOffset.current.x += (desiredX - mouseOffset.current.x) * mouseSmoothing;
     mouseOffset.current.y += (desiredY - mouseOffset.current.y) * mouseSmoothing;
+
+    const desiredDriftX = mouse.current.x * MAX_POSITION_DRIFT_X;
+    const desiredDriftY = -mouse.current.y * MAX_POSITION_DRIFT_Y;
+    positionDrift.current.x += (desiredDriftX - positionDrift.current.x) * mouseSmoothing;
+    positionDrift.current.y += (desiredDriftY - positionDrift.current.y) * mouseSmoothing;
+    camera.position.x += positionDrift.current.x;
+    camera.position.y += positionDrift.current.y;
 
     currentLookAt.current.lerp(targetLookAt.current, smoothing);
     camera.lookAt(

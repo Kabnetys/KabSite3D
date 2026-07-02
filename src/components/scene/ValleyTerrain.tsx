@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, type MutableRefObject } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useTexture } from "@react-three/drei";
 import { Color, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, Texture } from "three";
@@ -9,7 +9,6 @@ import {
 } from "@/lib/valleyTerrain";
 import { getChapterZRange } from "@/lib/chapters";
 import { getLightColorAt } from "@/lib/chapterAppearance";
-import type { MouseParallax } from "@/hooks/useMouseParallax";
 
 const NEUTRAL_ROCK = new Color("#ffffff");
 const TERRAIN_TINT_STRENGTH = 0.07;
@@ -18,8 +17,6 @@ const TEXTURE_REPEAT_Z = 48;
 
 interface ValleyTerrainProps {
   segments: number;
-  reducedMotion: boolean;
-  mouse: MutableRefObject<MouseParallax>;
   scrollProgress: number;
 }
 
@@ -31,7 +28,7 @@ const CAMERA_MARGIN = 60;
 const ROCK_END_Z = -280;
 const tintColor = new Color();
 
-export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }: ValleyTerrainProps) {
+export function ValleyTerrain({ segments, scrollProgress }: ValleyTerrainProps) {
   const groundRef = useRef<Mesh>(null);
   const groundMaterialRef = useRef<MeshStandardMaterial>(null);
   const rendererMaxAnisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
@@ -81,15 +78,9 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
   );
 
   useFrame(() => {
-    if (groundMaterialRef.current) {
-      tintColor.copy(NEUTRAL_ROCK).lerp(getLightColorAt(scrollProgress), TERRAIN_TINT_STRENGTH);
-      groundMaterialRef.current.color.copy(tintColor);
-    }
-    if (reducedMotion || !groundRef.current) return;
-    const tiltX = mouse.current.y * 0.01;
-    const tiltZ = -mouse.current.x * 0.01;
-    groundRef.current.rotation.x += (tiltX - groundRef.current.rotation.x) * 0.02;
-    groundRef.current.rotation.z += (tiltZ - groundRef.current.rotation.z) * 0.02;
+    if (!groundMaterialRef.current) return;
+    tintColor.copy(NEUTRAL_ROCK).lerp(getLightColorAt(scrollProgress), TERRAIN_TINT_STRENGTH);
+    groundMaterialRef.current.color.copy(tintColor);
   });
 
   return (

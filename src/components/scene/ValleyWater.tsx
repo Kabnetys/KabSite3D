@@ -25,12 +25,16 @@ const WATER_WIDTH = 2200;
 // height at that vertex is still above the waterline, so the water's edge
 // follows the canyon's actual contour instead of being a straight
 // rectangular cut across it.
-const WATER_NEAR_Z = -300;
+const WATER_NEAR_Z = -312;
 const WATER_FAR_Z = -900;
 const WATER_LENGTH = WATER_NEAR_Z - WATER_FAR_Z;
 const WATER_CENTER_Z = (WATER_NEAR_Z + WATER_FAR_Z) / 2;
 const WATER_LEVEL_OFFSET = 3;
-const SHORE_ALPHA_MARGIN = 4;
+// Kept tight: a wide soft margin lets the noisy, not-yet-fully-tapered rock
+// surface dip in and out of the threshold in many small unrelated spots,
+// showing up as scattered translucent blotches across the rock face
+// instead of one clean shoreline.
+const SHORE_ALPHA_MARGIN = 1.2;
 const WATER_SEGMENTS = 72;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
 const TEXTURE_REPEAT = 16;

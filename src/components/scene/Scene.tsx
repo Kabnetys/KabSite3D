@@ -60,12 +60,7 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       <DistantPanorama />
       <Moon />
       <Suspense fallback={null}>
-        <ValleyTerrain
-          segments={segments}
-          reducedMotion={reducedMotion}
-          mouse={mouse}
-          scrollProgress={scrollProgress}
-        />
+        <ValleyTerrain segments={segments} scrollProgress={scrollProgress} />
       </Suspense>
       <ValleyFilaments scrollProgress={scrollProgress} />
       <Suspense fallback={null}>
