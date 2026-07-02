@@ -35,7 +35,7 @@ const WATER_NEAR_Z = -335;
 const WATER_FAR_Z = -900;
 const WATER_LENGTH = WATER_NEAR_Z - WATER_FAR_Z;
 const WATER_CENTER_Z = (WATER_NEAR_Z + WATER_FAR_Z) / 2;
-const WATER_LEVEL_OFFSET = 8.5;
+const WATER_LEVEL_OFFSET = 3;
 // Even with the geometry itself restricted to z <= WATER_NEAR_Z, the camera
 // can glimpse it from far away through gaps in the canyon walls before
 // actually arriving. Fade opacity in over a short window right as the

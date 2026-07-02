@@ -9,7 +9,7 @@ const MOON_RADIUS = 9;
 const MOON_X = 85;
 const MOON_Y = 150;
 const MOON_Z_OFFSET = -420;
-const WATER_LEVEL_OFFSET = 8.5;
+const WATER_LEVEL_OFFSET = 3;
 
 function buildGlowTexture(): CanvasTexture {
   const size = 256;
