@@ -7,7 +7,6 @@ import { useLenisScroll } from "@/hooks/useLenisScroll";
 import { useChapterNavigation } from "@/hooks/useChapterNavigation";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { isWebGLAvailable } from "@/lib/webgl";
-import { remapScrollForStops } from "@/lib/chapters";
 import { Minimap } from "./Minimap";
 import { ChapterTransitions } from "./ChapterTransitions";
 import { ColorWash } from "./ColorWash";
@@ -39,7 +38,6 @@ export function ValleyExperience() {
   const [showTextVersion, setShowTextVersion] = useState(false);
   const [theme, setTheme] = useState<SceneTheme>(getInitialTheme);
   const scrollProgress = useScrollProgress();
-  const sceneProgress = remapScrollForStops(scrollProgress);
   const reducedMotion = useReducedMotion();
   const { goToChapter } = useChapterNavigation(scrollProgress);
 
@@ -64,10 +62,10 @@ export function ValleyExperience() {
   return (
     <div className="relative">
       <div className="fixed inset-0 z-0">
-        <Scene scrollProgress={sceneProgress} reducedMotion={reducedMotion} theme={theme} />
+        <Scene scrollProgress={scrollProgress} reducedMotion={reducedMotion} theme={theme} />
       </div>
-      <ColorWash scrollProgress={sceneProgress} theme={theme} />
-      <ChapterTransitions scrollProgress={sceneProgress} />
+      <ColorWash scrollProgress={scrollProgress} theme={theme} />
+      <ChapterTransitions scrollProgress={scrollProgress} />
       <Minimap scrollProgress={scrollProgress} onSelect={goToChapter} />
       <TextVersionToggle onClick={() => setShowTextVersion(true)} />
       <ThemeToggle theme={theme} onToggle={toggleTheme} />
