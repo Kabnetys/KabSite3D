@@ -30,7 +30,10 @@ const detailNoise2D = createNoise2D(() => 0.87);
 // Horizon finale has no terrain left to render. Only taper right at that
 // physical boundary (not earlier in the journey) so the mesh doesn't just
 // vanish as a visible hard "cut" line -- everywhere before this stays
-// untouched, full-height rock.
+// untouched, full-height rock. EDGE_FALLOFF_END_Z must stay in sync with
+// ValleyWater.tsx's WATER_NEAR_Z: the water plane must never overlap the
+// still-tapering zone, or patches of water peek through dips in the
+// not-yet-fully-flattened ridge before the intended reveal.
 const EDGE_FALLOFF_START_Z = -300;
 const EDGE_FALLOFF_END_Z = -335;
 const EDGE_MIN_RIDGE_SCALE = 0;

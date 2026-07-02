@@ -19,11 +19,14 @@ interface ValleyWaterProps {
 
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_WIDTH = 2200;
-// The plane only covers z <= WATER_NEAR_Z (roughly where the rock starts
-// tapering toward its hard clip) through WATER_FAR_Z, so mounting it at
-// t=0 never exposes water under the earlier valley -- there is simply no
-// water geometry there to show through the trough.
-const WATER_NEAR_Z = -300;
+// The plane only covers z <= WATER_NEAR_Z through WATER_FAR_Z, so mounting
+// it at t=0 never exposes water under the earlier valley -- there is simply
+// no water geometry there to show through the trough. WATER_NEAR_Z is kept
+// aligned with the rock's edge-falloff end (see valleyTerrain.ts) so the
+// water plane never overlaps the zone where the rock ridge is still
+// partway through tapering down -- otherwise patches of water peek through
+// dips in the not-yet-fully-flattened terrain before the actual reveal.
+const WATER_NEAR_Z = -335;
 const WATER_FAR_Z = -900;
 const WATER_LENGTH = WATER_NEAR_Z - WATER_FAR_Z;
 const WATER_CENTER_Z = (WATER_NEAR_Z + WATER_FAR_Z) / 2;
