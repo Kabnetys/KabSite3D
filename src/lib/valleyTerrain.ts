@@ -26,9 +26,9 @@ export const DEFAULT_VALLEY_CONFIG: ValleyConfig = {
 const noise2D = createNoise2D(() => 0.42);
 const detailNoise2D = createNoise2D(() => 0.87);
 
-const COAST_FALLOFF_START_Z = -260;
-const COAST_FALLOFF_END_Z = -420;
-const COAST_MIN_RIDGE_SCALE = 0.3;
+const COAST_FALLOFF_START_Z = -220;
+const COAST_FALLOFF_END_Z = -400;
+const COAST_MIN_RIDGE_SCALE = 0.03;
 
 function coastalRidgeScale(z: number): number {
   const t = Math.min(

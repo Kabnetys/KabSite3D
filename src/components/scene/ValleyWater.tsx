@@ -18,9 +18,9 @@ interface ValleyWaterProps {
 }
 
 const HORIZON_CHAPTER_INDEX = 5;
-const WATER_WIDTH = 1400;
+const WATER_WIDTH = 2200;
 const WATER_LENGTH = 1000;
-const WATER_LEVEL_OFFSET = 7;
+const WATER_LEVEL_OFFSET = 8.5;
 const WATER_SEGMENTS = 72;
 const WATER_RISE_DISTANCE = 14;
 const NORMAL_RECOMPUTE_INTERVAL = 2;

@@ -10,9 +10,9 @@ const SAMPLES_PER_CHAPTER = 6;
 
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_CENTER_Z_OFFSET = -20;
-const WATER_LEVEL_OFFSET = 7;
+const WATER_LEVEL_OFFSET = 8.5;
 const CAMERA_ABOVE_WATER_MARGIN = 6;
-const WATER_ZONE_START_Z = -280;
+const WATER_ZONE_START_Z = -220;
 
 function terrainHeight(x: number, z: number): number {
   return valleyHeightAt(x, z, DEFAULT_VALLEY_CONFIG);
