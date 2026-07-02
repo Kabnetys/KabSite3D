@@ -24,6 +24,11 @@ interface ValleyTerrainProps {
 }
 
 const CAMERA_MARGIN = 60;
+// Hard stop for the rock geometry: nothing is built past this z, so the
+// Horizon finale (camera ~z=-362, looking toward ~z=-407) physically has no
+// terrain mesh to render, guaranteeing an unobstructed water/sky view
+// instead of relying on height falloffs alone.
+const ROCK_END_Z = -280;
 const tintColor = new Color();
 
 export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }: ValleyTerrainProps) {
@@ -34,9 +39,10 @@ export function ValleyTerrain({ segments, reducedMotion, mouse, scrollProgress }
 
   const config = useMemo(() => {
     const { min, max } = getChapterZRange();
+    const clippedMin = Math.max(min, ROCK_END_Z);
     const ranged = computeValleyConfigForRange(
       DEFAULT_VALLEY_CONFIG,
-      min,
+      clippedMin,
       max,
       CAMERA_MARGIN
     );

@@ -10,7 +10,7 @@ import {
   RepeatWrapping,
 } from "three";
 import { createNoise2D } from "simplex-noise";
-import { CHAPTERS, getChapterBlend } from "@/lib/chapters";
+import { CHAPTERS } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
 
 interface ValleyWaterProps {
@@ -45,7 +45,7 @@ function buildWaterGeometry(): PlaneGeometry {
   return geometry;
 }
 
-export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
+export function ValleyWater(_props: ValleyWaterProps) {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
   const geometry = useMemo(() => buildWaterGeometry(), []);
@@ -70,16 +70,13 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
   const waterLevel = valleyHeightAt(0, waterCenterZ, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
 
   useFrame(({ clock }) => {
-    const { index, t } = getChapterBlend(scrollProgress);
-    const waterVisibility = index >= HORIZON_CHAPTER_INDEX - 1 ? (index === HORIZON_CHAPTER_INDEX - 1 ? t : 1) : 0;
-
     if (!meshRef.current || !materialRef.current) return;
 
-    const isVisible = waterVisibility > 0.001;
-    meshRef.current.visible = isVisible;
-    if (!isVisible) return;
-
-    materialRef.current.opacity = Math.min(1, waterVisibility * 1.6);
+    // Always mounted and rendered: the rock geometry itself stops well
+    // before the water's footprint, so it stays naturally hidden beneath
+    // the terrain everywhere except the Horizon finale where the rock ends.
+    meshRef.current.visible = true;
+    materialRef.current.opacity = 1;
     materialRef.current.emissiveIntensity = 0.16 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
 
     const time = clock.elapsedTime;
@@ -126,7 +123,7 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
         roughness={0.32}
         metalness={0.35}
         transparent
-        opacity={0}
+        opacity={1}
       />
     </mesh>
   );
