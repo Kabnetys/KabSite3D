@@ -18,11 +18,17 @@ const PANORAMA_MARGIN = 20;
 const NORMAL_RECOMPUTE_INTERVAL = 4;
 const WAVE_NOISE = createNoise2D(() => 0.71);
 
-const BACKDROP_WIDTH = 1400;
-const BACKDROP_HEIGHT = 260;
+const BACKDROP_WIDTH = 3200;
+const BACKDROP_HEIGHT = 600;
 const BACKDROP_SEGMENTS = 24;
 const WATER_COLOR = new Color("#123a7a");
-const SKY_COLOR = new Color("#05050f");
+// Matches the Canvas's own background color exactly (see Scene.tsx) so the
+// top of the backdrop blends away instead of showing as a visible seam.
+const SKY_COLOR = new Color("#040d1a");
+// How far down from the top (as a fraction of height) the color/alpha
+// finishes fading into the canvas background, so the plane's edges dissolve
+// instead of reading as a hard rectangular frame.
+const TOP_FADE_FRACTION = 0.35;
 
 function buildPanoramaGeometry(): PlaneGeometry {
   const geometry = new PlaneGeometry(
@@ -38,17 +44,20 @@ function buildPanoramaGeometry(): PlaneGeometry {
 function buildBackdropGeometry(): PlaneGeometry {
   const geometry = new PlaneGeometry(BACKDROP_WIDTH, BACKDROP_HEIGHT, 1, BACKDROP_SEGMENTS);
   const position = geometry.attributes.position;
-  const colors = new Float32Array(position.count * 3);
+  const colors = new Float32Array(position.count * 4);
   const color = new Color();
   for (let i = 0; i < position.count; i += 1) {
     const y = position.getY(i);
     const t = Math.min(1, Math.max(0, (y + BACKDROP_HEIGHT / 2) / BACKDROP_HEIGHT));
     color.copy(WATER_COLOR).lerp(SKY_COLOR, t);
-    colors[i * 3] = color.r;
-    colors[i * 3 + 1] = color.g;
-    colors[i * 3 + 2] = color.b;
+    const fadeT = Math.min(1, Math.max(0, (t - (1 - TOP_FADE_FRACTION)) / TOP_FADE_FRACTION));
+    const alpha = 1 - fadeT;
+    colors[i * 4] = color.r;
+    colors[i * 4 + 1] = color.g;
+    colors[i * 4 + 2] = color.b;
+    colors[i * 4 + 3] = alpha;
   }
-  geometry.setAttribute("color", new BufferAttribute(colors, 3));
+  geometry.setAttribute("color", new BufferAttribute(colors, 4));
   return geometry;
 }
 
@@ -102,6 +111,7 @@ export function DistantPanorama() {
           }}
           vertexColors
           fog={false}
+          transparent
           depthWrite={false}
         />
       </mesh>
