@@ -10,6 +10,7 @@ import { isWebGLAvailable } from "@/lib/webgl";
 import { Minimap } from "./Minimap";
 import { ChapterTransitions } from "./ChapterTransitions";
 import { ColorWash } from "./ColorWash";
+import { LogoIntro } from "./LogoIntro";
 import { TextVersion } from "@/components/ui/TextVersion";
 import { TextVersionToggle } from "@/components/ui/TextVersionToggle";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
@@ -65,6 +66,7 @@ export function ValleyExperience() {
         <Scene scrollProgress={scrollProgress} reducedMotion={reducedMotion} theme={theme} />
       </div>
       <ColorWash scrollProgress={scrollProgress} theme={theme} />
+      <LogoIntro scrollProgress={scrollProgress} />
       <ChapterTransitions scrollProgress={scrollProgress} />
       <Minimap scrollProgress={scrollProgress} onSelect={goToChapter} />
       <TextVersionToggle onClick={() => setShowTextVersion(true)} />

@@ -4,6 +4,7 @@ import { Billboard } from "@react-three/drei";
 import { AdditiveBlending, CanvasTexture, Mesh, MeshBasicMaterial } from "three";
 import { CHAPTERS } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
+import { buildRadialGlowTexture } from "@/lib/glowTexture";
 import type { SceneTheme } from "@/lib/theme";
 
 interface MoonProps {
@@ -20,23 +21,6 @@ const MOON_Y = 150;
 const SUN_Y = 220;
 const MOON_COLOR = "255,252,240";
 const SUN_COLOR = "255,244,214";
-
-function buildGlowTexture(rgb: string): CanvasTexture {
-  const size = 256;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-    gradient.addColorStop(0, `rgba(${rgb},1)`);
-    gradient.addColorStop(0.35, `rgba(${rgb},0.45)`);
-    gradient.addColorStop(1, `rgba(${rgb},0)`);
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, size, size);
-  }
-  return new CanvasTexture(canvas);
-}
 
 function buildStreakTexture(rgb: string): CanvasTexture {
   const width = 64;
@@ -76,7 +60,7 @@ export function Moon({ theme }: MoonProps) {
   const glowRef = useRef<Mesh>(null);
   const streakRef = useRef<Mesh>(null);
 
-  const glowTexture = useMemo(() => buildGlowTexture(rgb), [rgb]);
+  const glowTexture = useMemo(() => buildRadialGlowTexture(rgb), [rgb]);
   const streakTexture = useMemo(() => buildStreakTexture(rgb), [rgb]);
 
   const horizonChapter = CHAPTERS[HORIZON_CHAPTER_INDEX];

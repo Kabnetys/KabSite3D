@@ -9,9 +9,21 @@ import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { ValleyWater } from "./ValleyWater";
 import { Moon } from "./Moon";
+import { KabNetysLogo3D } from "./KabNetysLogo3D";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
+import { CHAPTERS } from "@/lib/chapters";
+import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
+
+const PERCEE_CHAPTER_INDEX = 2;
+const LOGO_X_OFFSET = 20;
+const LOGO_Z_OFFSET = 6;
+const LOGO_HOVER = 11;
+const logoChapter = CHAPTERS[PERCEE_CHAPTER_INDEX];
+const LOGO_X = logoChapter.position[0] + LOGO_X_OFFSET;
+const LOGO_Z = logoChapter.position[2] + LOGO_Z_OFFSET;
+const LOGO_Y = valleyHeightAt(LOGO_X, LOGO_Z, DEFAULT_VALLEY_CONFIG) + LOGO_HOVER;
 
 interface SceneProps {
   scrollProgress: number;
@@ -74,6 +86,11 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
       </Suspense>
       <Suspense fallback={null}>
         <ValleyWater scrollProgress={scrollProgress} theme={theme} />
+      </Suspense>
+      <Suspense fallback={null}>
+        <group position={[LOGO_X, LOGO_Y, LOGO_Z]} rotation={[0, Math.PI * 0.15, 0]} scale={0.9}>
+          <KabNetysLogo3D />
+        </group>
       </Suspense>
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
     </Canvas>
