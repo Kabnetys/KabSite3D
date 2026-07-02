@@ -22,7 +22,6 @@ const WATER_WIDTH = 2200;
 const WATER_LENGTH = 1000;
 const WATER_LEVEL_OFFSET = 8.5;
 const WATER_SEGMENTS = 72;
-const WATER_RISE_DISTANCE = 14;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
 const TEXTURE_REPEAT = 16;
 const FLOW_SPEED_X = 0.05;
@@ -81,7 +80,6 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
     if (!isVisible) return;
 
     materialRef.current.opacity = Math.min(1, waterVisibility * 1.6);
-    meshRef.current.position.y = waterLevel - (1 - waterVisibility) * WATER_RISE_DISTANCE;
     materialRef.current.emissiveIntensity = 0.16 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
 
     const time = clock.elapsedTime;
