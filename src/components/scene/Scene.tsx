@@ -15,6 +15,7 @@ import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
 import { computePanelTransformAtProgress } from "@/lib/chapterPanels";
+import { getLightColorAt, getLightIntensityAt } from "@/lib/chapterAppearance";
 
 interface ChapterPanelConfig {
   id: string;
@@ -174,16 +175,21 @@ function RimLight({ scrollProgress, theme }: RimLightProps) {
     lightRef.current.position.set(camPos.x - 60, camPos.y + 90, camPos.z + 40);
     lightRef.current.target.position.set(camPos.x, camPos.y - 5, camPos.z - 60);
     lightRef.current.target.updateMatrixWorld();
+
+    // Dark mode carries the storyboard's per-chapter mood light (violet ->
+    // red-orange -> cyan -> electric blue -> amber -> white, see
+    // chapterAppearance.ts / CONCEPT.md). Light mode stays a fixed daylight
+    // sun regardless of chapter.
+    if (theme === "dark") {
+      lightRef.current.color.copy(getLightColorAt(scrollProgress));
+      lightRef.current.intensity = getLightIntensityAt(scrollProgress) * 0.18;
+    } else {
+      lightRef.current.color.set(palette.sunColor);
+      lightRef.current.intensity = palette.sunIntensity;
+    }
   });
 
-  return (
-    <directionalLight
-      ref={lightRef}
-      color={palette.sunColor}
-      intensity={palette.sunIntensity}
-      castShadow={false}
-    />
-  );
+  return <directionalLight ref={lightRef} castShadow={false} />;
 }
 
 export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
