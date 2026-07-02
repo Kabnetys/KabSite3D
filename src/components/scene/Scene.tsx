@@ -11,20 +11,24 @@ import { ValleyWater } from "./ValleyWater";
 import { Moon } from "./Moon";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
+import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
 
 interface SceneProps {
   scrollProgress: number;
   reducedMotion: boolean;
+  theme: SceneTheme;
 }
 
 interface RimLightProps {
   scrollProgress: number;
+  theme: SceneTheme;
 }
 
 const camPos = new Vector3();
 
-function RimLight({ scrollProgress }: RimLightProps) {
+function RimLight({ scrollProgress, theme }: RimLightProps) {
   const lightRef = useRef<DirectionalLight>(null);
+  const palette = THEME_PALETTES[theme];
 
   useFrame(() => {
     if (!lightRef.current) return;
@@ -34,14 +38,22 @@ function RimLight({ scrollProgress }: RimLightProps) {
     lightRef.current.target.updateMatrixWorld();
   });
 
-  return <directionalLight ref={lightRef} color="#dce8ff" intensity={2} castShadow={false} />;
+  return (
+    <directionalLight
+      ref={lightRef}
+      color={palette.sunColor}
+      intensity={palette.sunIntensity}
+      castShadow={false}
+    />
+  );
 }
 
-export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
+export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
   const performanceTier = useMemo(() => detectPerformanceTier(), []);
   const highQuality = performanceTier === "high";
   const segments = highQuality ? 120 : 70;
   const mouse = useMouseParallax(!reducedMotion);
+  const palette = THEME_PALETTES[theme];
 
   return (
     <Canvas
@@ -49,17 +61,19 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       gl={{ antialias: highQuality }}
       camera={{ fov: 62, near: 0.1, far: 900 }}
     >
-      <color attach="background" args={["#040d1a"]} />
-      <ambientLight intensity={0.34} color="#8a8478" />
-      <hemisphereLight args={["#00b4ff", "#1a1712", 0.42]} />
-      <RimLight scrollProgress={scrollProgress} />
-      <ValleyAtmosphere scrollProgress={scrollProgress} />
-      <Moon />
+      <color attach="background" args={[palette.background]} />
+      <ambientLight intensity={palette.ambientIntensity} color={palette.ambientColor} />
+      <hemisphereLight
+        args={[palette.hemisphereSky, palette.hemisphereGround, palette.hemisphereIntensity]}
+      />
+      <RimLight scrollProgress={scrollProgress} theme={theme} />
+      <ValleyAtmosphere scrollProgress={scrollProgress} theme={theme} />
+      <Moon theme={theme} />
       <Suspense fallback={null}>
-        <ValleyTerrain segments={segments} scrollProgress={scrollProgress} />
+        <ValleyTerrain segments={segments} scrollProgress={scrollProgress} theme={theme} />
       </Suspense>
       <Suspense fallback={null}>
-        <ValleyWater scrollProgress={scrollProgress} />
+        <ValleyWater scrollProgress={scrollProgress} theme={theme} />
       </Suspense>
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
     </Canvas>

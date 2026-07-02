@@ -1,12 +1,16 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
-import { FogExp2, Points } from "three";
+import { Color, FogExp2, Points } from "three";
 import { getFogColorAt, getFogDensityAt, getStarOpacityAt } from "@/lib/chapterAppearance";
 import { getChapterZRange } from "@/lib/chapters";
+import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
 
 interface ValleyAtmosphereProps {
   scrollProgress: number;
+  theme: SceneTheme;
 }
+
+const dayFogColor = new Color();
 
 const STAR_COUNT = 900;
 const STAR_MARGIN = 250;
@@ -24,19 +28,28 @@ function buildStarPositions(): Float32Array {
   return positions;
 }
 
-export function ValleyAtmosphere({ scrollProgress }: ValleyAtmosphereProps) {
+export function ValleyAtmosphere({ scrollProgress, theme }: ValleyAtmosphereProps) {
   const fogRef = useRef<FogExp2>(null);
   const starsRef = useRef<Points>(null);
   const starPositions = useMemo(() => buildStarPositions(), []);
+  const palette = THEME_PALETTES[theme];
 
   useFrame(() => {
     if (fogRef.current) {
-      fogRef.current.color.copy(getFogColorAt(scrollProgress));
-      fogRef.current.density = getFogDensityAt(scrollProgress);
+      if (theme === "light") {
+        // Daylight skips the per-chapter moody fog palette entirely for a
+        // clear, consistent haze instead of a night-tuned color.
+        dayFogColor.set(palette.fogColor);
+        fogRef.current.color.copy(dayFogColor);
+        fogRef.current.density = palette.fogDensity;
+      } else {
+        fogRef.current.color.copy(getFogColorAt(scrollProgress));
+        fogRef.current.density = getFogDensityAt(scrollProgress);
+      }
     }
     if (starsRef.current) {
       const material = starsRef.current.material as import("three").PointsMaterial;
-      material.opacity = getStarOpacityAt(scrollProgress);
+      material.opacity = theme === "light" ? 0 : getStarOpacityAt(scrollProgress);
     }
   });
 

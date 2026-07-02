@@ -9,15 +9,17 @@ import {
 } from "@/lib/valleyTerrain";
 import { getChapterZRange } from "@/lib/chapters";
 import { getLightColorAt } from "@/lib/chapterAppearance";
+import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
 
 const NEUTRAL_ROCK = new Color("#ffffff");
-const TERRAIN_TINT_STRENGTH = 0.07;
 const TEXTURE_REPEAT_X = 24;
 const TEXTURE_REPEAT_Z = 48;
+const moodColor = new Color();
 
 interface ValleyTerrainProps {
   segments: number;
   scrollProgress: number;
+  theme: SceneTheme;
 }
 
 const CAMERA_MARGIN = 60;
@@ -28,9 +30,10 @@ const CAMERA_MARGIN = 60;
 const ROCK_END_Z = -280;
 const tintColor = new Color();
 
-export function ValleyTerrain({ segments, scrollProgress }: ValleyTerrainProps) {
+export function ValleyTerrain({ segments, scrollProgress, theme }: ValleyTerrainProps) {
   const groundRef = useRef<Mesh>(null);
   const groundMaterialRef = useRef<MeshStandardMaterial>(null);
+  const palette = THEME_PALETTES[theme];
   const rendererMaxAnisotropy = useThree((state) => state.gl.capabilities.getMaxAnisotropy());
   const maxAnisotropy = Math.min(8, rendererMaxAnisotropy);
 
@@ -79,7 +82,12 @@ export function ValleyTerrain({ segments, scrollProgress }: ValleyTerrainProps) 
 
   useFrame(() => {
     if (!groundMaterialRef.current) return;
-    tintColor.copy(NEUTRAL_ROCK).lerp(getLightColorAt(scrollProgress), TERRAIN_TINT_STRENGTH);
+    if (theme === "light") {
+      moodColor.set(palette.terrainTint);
+    } else {
+      moodColor.copy(getLightColorAt(scrollProgress));
+    }
+    tintColor.copy(NEUTRAL_ROCK).lerp(moodColor, palette.terrainTintStrength);
     groundMaterialRef.current.color.copy(tintColor);
   });
 

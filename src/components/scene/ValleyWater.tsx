@@ -12,9 +12,11 @@ import {
 import { createNoise2D } from "simplex-noise";
 import { CHAPTERS } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
+import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
 
 interface ValleyWaterProps {
   scrollProgress: number;
+  theme: SceneTheme;
 }
 
 const HORIZON_CHAPTER_INDEX = 5;
@@ -42,9 +44,6 @@ const FLOW_SPEED_X = 0.05;
 const FLOW_SPEED_Y = 0.08;
 const WAVE_NOISE = createNoise2D(() => 0.61);
 const DETAIL_NOISE = createNoise2D(() => 0.34);
-
-const BASE_COLOR = new Color("#0a1c4a");
-const CREST_COLOR = new Color("#1c4f9c");
 
 const WATER_LEVEL_Z = CHAPTERS[HORIZON_CHAPTER_INDEX].position[2] - 20;
 const WATER_LEVEL = valleyHeightAt(0, WATER_LEVEL_Z, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
@@ -82,7 +81,7 @@ function buildWaterGeometry(): PlaneGeometry {
   return geometry;
 }
 
-export function ValleyWater(_props: ValleyWaterProps) {
+export function ValleyWater({ theme }: ValleyWaterProps) {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
   const geometry = useMemo(() => buildWaterGeometry(), []);
@@ -92,6 +91,11 @@ export function ValleyWater(_props: ValleyWaterProps) {
   }, [geometry]);
   const frameCount = useRef(0);
   const workColor = useMemo(() => new Color(), []);
+  const baseColor = useMemo(() => new Color(), []);
+  const crestColor = useMemo(() => new Color(), []);
+  const palette = THEME_PALETTES[theme];
+  baseColor.set(palette.waterBase);
+  crestColor.set(palette.waterCrest);
 
   const [normalMap] = useTexture(["/textures/water/water-normal.webp"], (textures) => {
     textures.forEach((texture) => {
@@ -111,7 +115,9 @@ export function ValleyWater(_props: ValleyWaterProps) {
     // no scroll-driven fade is needed on top of it.
     meshRef.current.visible = true;
     materialRef.current.opacity = 1;
-    materialRef.current.emissiveIntensity = 0.16 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
+    materialRef.current.emissive.set(palette.waterEmissive);
+    materialRef.current.emissiveIntensity =
+      palette.waterEmissiveIntensity + Math.sin(clock.elapsedTime * 0.8) * 0.05 * (theme === "dark" ? 1 : 0.2);
 
     const time = clock.elapsedTime;
     if (normalMap) {
@@ -133,7 +139,7 @@ export function ValleyWater(_props: ValleyWaterProps) {
       position.setY(i, wave);
 
       const crestT = Math.min(1, Math.max(0, (wave + 0.6) / 1.8));
-      workColor.copy(BASE_COLOR).lerp(CREST_COLOR, crestT);
+      workColor.copy(baseColor).lerp(crestColor, crestT);
       colorAttr.setXYZ(i, workColor.r, workColor.g, workColor.b);
     }
     position.needsUpdate = true;
@@ -152,8 +158,8 @@ export function ValleyWater(_props: ValleyWaterProps) {
         vertexColors
         normalMap={normalMap}
         normalScale={[1.4, 1.4]}
-        emissive="#123a7a"
-        emissiveIntensity={0.16}
+        emissive={palette.waterEmissive}
+        emissiveIntensity={palette.waterEmissiveIntensity}
         roughness={0.32}
         metalness={0.35}
         transparent
