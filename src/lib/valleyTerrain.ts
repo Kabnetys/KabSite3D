@@ -26,34 +26,22 @@ export const DEFAULT_VALLEY_CONFIG: ValleyConfig = {
 const noise2D = createNoise2D(() => 0.42);
 const detailNoise2D = createNoise2D(() => 0.87);
 
-const COAST_FALLOFF_START_Z = -220;
-const COAST_FALLOFF_END_Z = -400;
-const COAST_MIN_RIDGE_SCALE = 0.03;
+// The rock mesh is hard-clipped in ValleyTerrain.tsx at ROCK_END_Z so the
+// Horizon finale has no terrain left to render. Only taper right at that
+// physical boundary (not earlier in the journey) so the mesh doesn't just
+// vanish as a visible hard "cut" line -- everywhere before this stays
+// untouched, full-height rock.
+const EDGE_FALLOFF_START_Z = -300;
+const EDGE_FALLOFF_END_Z = -335;
+const EDGE_MIN_RIDGE_SCALE = 0;
 
-function coastalRidgeScale(z: number): number {
+function edgeRidgeScale(z: number): number {
   const t = Math.min(
     1,
-    Math.max(0, (COAST_FALLOFF_START_Z - z) / (COAST_FALLOFF_START_Z - COAST_FALLOFF_END_Z))
+    Math.max(0, (EDGE_FALLOFF_START_Z - z) / (EDGE_FALLOFF_START_Z - EDGE_FALLOFF_END_Z))
   );
   const smooth = t * t * (3 - 2 * t);
-  return 1 - smooth * (1 - COAST_MIN_RIDGE_SCALE);
-}
-
-// The terrain mesh is a finite plane (x = +/-200). Rather than letting that
-// boundary end abruptly mid-air as a visible "cut" edge, taper the ridge
-// height and sink the ground down well below the waterline as x approaches
-// the boundary, everywhere along z, so the edge is always hidden from view.
-const EDGE_TAPER_START_X = 90;
-const EDGE_TAPER_END_X = 180;
-const EDGE_SINK_DEPTH = 60;
-
-function edgeTaperT(x: number): number {
-  const ax = Math.abs(x);
-  const t = Math.min(
-    1,
-    Math.max(0, (ax - EDGE_TAPER_START_X) / (EDGE_TAPER_END_X - EDGE_TAPER_START_X))
-  );
-  return t * t * (3 - 2 * t);
+  return 1 - smooth * (1 - EDGE_MIN_RIDGE_SCALE);
 }
 
 export function valleyHeightAt(
@@ -64,10 +52,9 @@ export function valleyHeightAt(
   const n = noise2D(x * 0.015, z * 0.015);
   const detail = detailNoise2D(x * 0.08, z * 0.08) * 2.8;
   const fineDetail = detailNoise2D(x * 0.22 + 100, z * 0.22 + 100) * 1.1;
-  const edgeT = edgeTaperT(x);
-  const ridge = (n * config.noiseHeight + detail + fineDetail) * coastalRidgeScale(z) * (1 - edgeT);
+  const ridge = (n * config.noiseHeight + detail + fineDetail) * edgeRidgeScale(z);
   const carve = config.valleyDepth * Math.exp(-(x * x) / (config.valleyWidth * config.valleyWidth));
-  return ridge - carve - edgeT * EDGE_SINK_DEPTH;
+  return ridge - carve;
 }
 
 export function buildGroundGeometry(config: ValleyConfig): BufferGeometry {
