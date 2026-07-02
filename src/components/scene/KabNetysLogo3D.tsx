@@ -1,85 +1,86 @@
 import { useMemo } from "react";
-import { useGLTF, Float, Text3D } from "@react-three/drei";
-import { Box3, MeshStandardMaterial, Vector3 } from "three";
+import { useTexture, Float } from "@react-three/drei";
+import { BufferAttribute, DoubleSide, PlaneGeometry, SRGBColorSpace, Texture } from "three";
 
 interface KabNetysLogo3DProps {
   float?: boolean;
 }
 
-const MODEL_URL = "/models/kabnetys-logo.glb";
-const NETYS_FONT_URL = "/fonts/droid_sans_mono_regular.typeface.json";
-const TARGET_SIZE = 4.5;
-const BADGE_COLOR = "#04122e";
-const NETYS_RGB = "225,255,255";
+const IMAGE_URL = "/textures/logo/kabnetys-logo.webp";
+const IMAGE_ASPECT = 353 / 707;
 
-// The AI reconstruction (TripoSR) renders the "netys" wordmark as an
-// illegible blur -- it isn't sharp text at that scale. Patch that region
-// of the model with a solid panel matching its own background color, then
-// overlay a crisp, real extruded Text3D "netys" on top instead. Positions
-// are in the model's own local space (its bounding box is x:[-0.5,0.5],
-// y:[-0.216,0.216], z:[-0.035,0.035], with "netys" sitting on the right
-// ~45% of the badge).
-const NETYS_PATCH_POSITION: [number, number, number] = [0.26, 0, 0.037];
-const NETYS_PATCH_SIZE: [number, number, number] = [0.48, 0.34, 0.01];
-const NETYS_TEXT_POSITION: [number, number, number] = [0.035, -0.065, 0.043];
-const NETYS_TEXT_SIZE = 0.13;
+// Sampling grid for the relief -- high enough to keep the neon line detail
+// (the thin double-stroke outlines) crisp when displaced.
+const GRID_X = 180;
+const GRID_Y = Math.round(GRID_X * IMAGE_ASPECT);
+const PLANE_WIDTH = 6;
+const PLANE_HEIGHT = PLANE_WIDTH * IMAGE_ASPECT;
+const MIN_DEPTH = 0.015;
+const MAX_DEPTH = 0.24;
+const BACKING_DEPTH = 0.05;
 
-useGLTF.preload(MODEL_URL);
+function sampleAlpha(image: TexImageSource): Uint8ClampedArray {
+  const canvas = document.createElement("canvas");
+  canvas.width = GRID_X + 1;
+  canvas.height = GRID_Y + 1;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return new Uint8ClampedArray((GRID_X + 1) * (GRID_Y + 1) * 4);
+  ctx.drawImage(image as CanvasImageSource, 0, 0, canvas.width, canvas.height);
+  return ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+}
+
+function buildReliefGeometry(pixels: Uint8ClampedArray): PlaneGeometry {
+  const geometry = new PlaneGeometry(PLANE_WIDTH, PLANE_HEIGHT, GRID_X, GRID_Y);
+  const position = geometry.attributes.position as BufferAttribute;
+  const uv = geometry.attributes.uv as BufferAttribute;
+  const width = GRID_X + 1;
+
+  for (let i = 0; i < position.count; i += 1) {
+    const u = uv.getX(i);
+    const v = uv.getY(i);
+    const px = Math.min(GRID_X, Math.round(u * GRID_X));
+    const py = Math.min(GRID_Y, Math.round((1 - v) * GRID_Y));
+    const alpha = pixels[(py * width + px) * 4 + 3] / 255;
+    position.setZ(i, MIN_DEPTH + alpha * (MAX_DEPTH - MIN_DEPTH));
+  }
+
+  geometry.computeVertexNormals();
+  return geometry;
+}
 
 function LogoModel() {
-  const { scene } = useGLTF(MODEL_URL);
+  const texture = useTexture(IMAGE_URL, (loaded) => {
+    (loaded as Texture).colorSpace = SRGBColorSpace;
+  });
 
-  const { object, scale, center } = useMemo(() => {
-    const clone = scene.clone(true);
-
-    clone.traverse((child) => {
-      if (!("isMesh" in child) || !child.isMesh) return;
-      const material = (child as unknown as { material: MeshStandardMaterial }).material;
-      if (material?.map) {
-        material.emissiveMap = material.map;
-        material.emissive.set("#ffffff");
-        material.emissiveIntensity = 1.1;
-        material.toneMapped = false;
-      }
-    });
-
-    const box = new Box3().setFromObject(clone);
-    const size = new Vector3();
-    box.getSize(size);
-    const boxCenter = new Vector3();
-    box.getCenter(boxCenter);
-    const largestDimension = Math.max(size.x, size.y, size.z) || 1;
-
-    return { object: clone, scale: TARGET_SIZE / largestDimension, center: boxCenter };
-  }, [scene]);
+  const reliefGeometry = useMemo(() => {
+    const image = (texture as Texture).image as TexImageSource;
+    const pixels = sampleAlpha(image);
+    return buildReliefGeometry(pixels);
+  }, [texture]);
 
   return (
-    <group scale={scale}>
-      <primitive object={object} position={[-center.x, -center.y, -center.z]} />
-      <mesh position={NETYS_PATCH_POSITION}>
-        <boxGeometry args={NETYS_PATCH_SIZE} />
-        <meshStandardMaterial color={BADGE_COLOR} emissive="#0a2a5e" emissiveIntensity={0.4} />
+    <group>
+      {/* Solid backing so the relief reads as a real object, not a hollow
+          cutout, when seen from a grazing angle. */}
+      <mesh position={[0, 0, -BACKING_DEPTH / 2]}>
+        <boxGeometry args={[PLANE_WIDTH * 0.94, PLANE_HEIGHT * 0.85, BACKING_DEPTH]} />
+        <meshStandardMaterial color="#02102a" metalness={0.4} roughness={0.6} />
       </mesh>
-      <group position={NETYS_TEXT_POSITION}>
-        <Text3D
-          font={NETYS_FONT_URL}
-          size={NETYS_TEXT_SIZE}
-          height={0.02}
-          bevelEnabled
-          bevelThickness={0.003}
-          bevelSize={0.002}
-          bevelSegments={3}
-          curveSegments={8}
-        >
-          netys
-          <meshStandardMaterial
-            color={`rgb(${NETYS_RGB})`}
-            emissive={`rgb(${NETYS_RGB})`}
-            emissiveIntensity={1.4}
-            toneMapped={false}
-          />
-        </Text3D>
-      </group>
+
+      <mesh geometry={reliefGeometry}>
+        <meshStandardMaterial
+          map={texture}
+          emissiveMap={texture}
+          emissive="#ffffff"
+          emissiveIntensity={1.15}
+          toneMapped={false}
+          alphaTest={0.25}
+          side={DoubleSide}
+          roughness={0.45}
+          metalness={0.25}
+        />
+      </mesh>
     </group>
   );
 }
