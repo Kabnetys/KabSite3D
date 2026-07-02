@@ -24,18 +24,18 @@ function smoothstep01(t: number): number {
 
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_WIDTH = 2200;
-// The plane only covers z <= WATER_NEAR_Z through WATER_FAR_Z, so mounting
-// it at t=0 never exposes water under the earlier valley -- there is simply
-// no water geometry there to show through the trough. WATER_NEAR_Z is kept
-// aligned with the rock's edge-falloff end (see valleyTerrain.ts) so the
-// water plane never overlaps the zone where the rock ridge is still
-// partway through tapering down -- otherwise patches of water peek through
-// dips in the not-yet-fully-flattened terrain before the actual reveal.
-const WATER_NEAR_Z = -335;
+// The plane covers z <= WATER_NEAR_Z through WATER_FAR_Z. WATER_NEAR_Z
+// overlaps the rock's edge-falloff zone (see valleyTerrain.ts) on purpose:
+// per-vertex alpha (below) masks the water out wherever the real terrain
+// height at that vertex is still above the waterline, so the water's edge
+// follows the canyon's actual contour instead of being a straight
+// rectangular cut across it.
+const WATER_NEAR_Z = -300;
 const WATER_FAR_Z = -900;
 const WATER_LENGTH = WATER_NEAR_Z - WATER_FAR_Z;
 const WATER_CENTER_Z = (WATER_NEAR_Z + WATER_FAR_Z) / 2;
 const WATER_LEVEL_OFFSET = 3;
+const SHORE_ALPHA_MARGIN = 4;
 // Even with the geometry itself restricted to z <= WATER_NEAR_Z, the camera
 // can glimpse it from far away through gaps in the canyon walls before
 // actually arriving. Fade opacity in over a short window right as the
@@ -55,6 +55,9 @@ const DETAIL_NOISE = createNoise2D(() => 0.34);
 const BASE_COLOR = new Color("#0a1c4a");
 const CREST_COLOR = new Color("#1c4f9c");
 
+const WATER_LEVEL_Z = CHAPTERS[HORIZON_CHAPTER_INDEX].position[2] - 20;
+const WATER_LEVEL = valleyHeightAt(0, WATER_LEVEL_Z, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
+
 function buildWaterGeometry(): PlaneGeometry {
   const geometry = new PlaneGeometry(
     WATER_WIDTH,
@@ -63,8 +66,28 @@ function buildWaterGeometry(): PlaneGeometry {
     WATER_SEGMENTS
   );
   geometry.rotateX(-Math.PI / 2);
-  const colors = new Float32Array((geometry.attributes.position.count) * 3);
-  geometry.setAttribute("color", new BufferAttribute(colors, 3));
+
+  const position = geometry.attributes.position as BufferAttribute;
+  const vertexCount = position.count;
+  // RGBA: rgb is re-written every frame for the wave-crest tint, alpha is
+  // baked once here from the real terrain contour so the shoreline follows
+  // the canyon shape instead of the plane's rectangular boundary.
+  const colors = new Float32Array(vertexCount * 4);
+  for (let i = 0; i < vertexCount; i += 1) {
+    const worldX = position.getX(i);
+    const worldZ = position.getZ(i) + WATER_CENTER_Z;
+    const terrainHeight = valleyHeightAt(worldX, worldZ, DEFAULT_VALLEY_CONFIG);
+    const submerged = WATER_LEVEL - terrainHeight;
+    const alpha = Math.min(
+      1,
+      Math.max(0, (submerged + SHORE_ALPHA_MARGIN) / (SHORE_ALPHA_MARGIN * 2))
+    );
+    colors[i * 4] = 1;
+    colors[i * 4 + 1] = 1;
+    colors[i * 4 + 2] = 1;
+    colors[i * 4 + 3] = alpha;
+  }
+  geometry.setAttribute("color", new BufferAttribute(colors, 4));
   return geometry;
 }
 
@@ -87,10 +110,6 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
       texture.needsUpdate = true;
     });
   });
-
-  const horizonChapter = CHAPTERS[HORIZON_CHAPTER_INDEX];
-  const waterLevelZ = horizonChapter.position[2] - 20;
-  const waterLevel = valleyHeightAt(0, waterLevelZ, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
 
   useFrame(({ clock }) => {
     if (!meshRef.current || !materialRef.current) return;
@@ -139,7 +158,7 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
   });
 
   return (
-    <mesh ref={meshRef} geometry={geometry} position={[0, waterLevel, WATER_CENTER_Z]}>
+    <mesh ref={meshRef} geometry={geometry} position={[0, WATER_LEVEL, WATER_CENTER_Z]}>
       <meshStandardMaterial
         ref={materialRef}
         vertexColors
