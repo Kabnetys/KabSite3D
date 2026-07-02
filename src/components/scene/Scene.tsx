@@ -7,8 +7,6 @@ import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { getCameraPositionAt } from "@/lib/cameraPath";
 import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
-import { HeadlightBeacon } from "./HeadlightBeacon";
-import { ValleyFilaments } from "./ValleyFilaments";
 import { ValleyWater } from "./ValleyWater";
 import { Moon } from "./Moon";
 import { CameraRig } from "./CameraRig";
@@ -60,15 +58,9 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       <Suspense fallback={null}>
         <ValleyTerrain segments={segments} scrollProgress={scrollProgress} />
       </Suspense>
-      <ValleyFilaments scrollProgress={scrollProgress} />
       <Suspense fallback={null}>
         <ValleyWater scrollProgress={scrollProgress} />
       </Suspense>
-      <HeadlightBeacon
-        scrollProgress={scrollProgress}
-        reducedMotion={reducedMotion}
-        mouse={mouse}
-      />
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
     </Canvas>
   );
