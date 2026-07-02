@@ -81,7 +81,7 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
 
     materialRef.current.opacity = Math.min(1, waterVisibility * 1.6);
     meshRef.current.position.y = waterLevel - (1 - waterVisibility) * WATER_RISE_DISTANCE;
-    materialRef.current.emissiveIntensity = 0.5 + Math.sin(clock.elapsedTime * 0.8) * 0.12;
+    materialRef.current.emissiveIntensity = 0.16 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
 
     const time = clock.elapsedTime;
     if (normalMap) {
@@ -121,11 +121,11 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
         ref={materialRef}
         vertexColors
         normalMap={normalMap}
-        normalScale={[0.6, 0.6]}
+        normalScale={[1.4, 1.4]}
         emissive="#123a7a"
-        emissiveIntensity={0.55}
-        roughness={0.08}
-        metalness={0.9}
+        emissiveIntensity={0.16}
+        roughness={0.32}
+        metalness={0.35}
         transparent
         opacity={0}
       />
