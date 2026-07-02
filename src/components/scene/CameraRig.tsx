@@ -1,7 +1,12 @@
 import { useRef, type MutableRefObject } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Vector3 } from "three";
-import { getCameraPositionAt, getLookAtPositionAt } from "@/lib/cameraPath";
+import {
+  getCameraPositionAt,
+  getLookAtPositionAt,
+  WATER_SAFE_MIN_Y,
+  WATER_ZONE_START_Z,
+} from "@/lib/cameraPath";
 import type { MouseParallax } from "@/hooks/useMouseParallax";
 
 interface CameraRigProps {
@@ -47,6 +52,14 @@ export function CameraRig({ scrollProgress, reducedMotion, mouse }: CameraRigPro
     positionDrift.current.y += (desiredDriftY - positionDrift.current.y) * mouseSmoothing;
     camera.position.x += positionDrift.current.x;
     camera.position.y += positionDrift.current.y;
+
+    // The mouse drift above isn't aware of the water zone, so it could push
+    // the camera below the water surface near the Horizon finale. Re-clamp
+    // afterward instead of skipping drift there, so the mouse still has an
+    // effect but can never dip the camera underwater.
+    if (camera.position.z <= WATER_ZONE_START_Z) {
+      camera.position.y = Math.max(camera.position.y, WATER_SAFE_MIN_Y);
+    }
 
     currentLookAt.current.lerp(targetLookAt.current, smoothing);
     camera.lookAt(

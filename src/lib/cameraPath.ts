@@ -12,7 +12,7 @@ const HORIZON_CHAPTER_INDEX = 5;
 const WATER_CENTER_Z_OFFSET = -20;
 const WATER_LEVEL_OFFSET = 3;
 const CAMERA_ABOVE_WATER_MARGIN = 6;
-const WATER_ZONE_START_Z = -220;
+export const WATER_ZONE_START_Z = -220;
 
 function terrainHeight(x: number, z: number): number {
   return valleyHeightAt(x, z, DEFAULT_VALLEY_CONFIG);
@@ -24,6 +24,10 @@ function waterSafeMinY(): number {
   const waterLevel = terrainHeight(0, waterCenterZ) + WATER_LEVEL_OFFSET;
   return waterLevel + CAMERA_ABOVE_WATER_MARGIN;
 }
+
+// Exposed so CameraRig can re-clamp after applying mouse-driven drift on
+// top of the base path -- the drift itself isn't aware of the water zone.
+export const WATER_SAFE_MIN_Y = waterSafeMinY();
 
 function interpolateXAt(z: number): number {
   for (let i = 0; i < CHAPTERS.length - 1; i += 1) {
