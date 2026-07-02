@@ -66,7 +66,9 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
         />
       </Suspense>
       <ValleyFilaments scrollProgress={scrollProgress} />
-      <ValleyWater scrollProgress={scrollProgress} />
+      <Suspense fallback={null}>
+        <ValleyWater scrollProgress={scrollProgress} />
+      </Suspense>
       <HeadlightBeacon
         scrollProgress={scrollProgress}
         reducedMotion={reducedMotion}

@@ -1,11 +1,13 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { useTexture } from "@react-three/drei";
 import {
   BufferAttribute,
   Color,
   Mesh,
   MeshStandardMaterial,
   PlaneGeometry,
+  RepeatWrapping,
 } from "three";
 import { createNoise2D } from "simplex-noise";
 import { CHAPTERS, getChapterBlend } from "@/lib/chapters";
@@ -21,6 +23,9 @@ const WATER_LENGTH = 700;
 const WATER_SEGMENTS = 72;
 const WATER_RISE_DISTANCE = 14;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
+const TEXTURE_REPEAT = 40;
+const FLOW_SPEED_X = 0.006;
+const FLOW_SPEED_Y = 0.009;
 const WAVE_NOISE = createNoise2D(() => 0.61);
 const DETAIL_NOISE = createNoise2D(() => 0.34);
 
@@ -51,6 +56,15 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
   const frameCount = useRef(0);
   const workColor = useMemo(() => new Color(), []);
 
+  const [normalMap] = useTexture(["/textures/water/water-normal.webp"], (textures) => {
+    textures.forEach((texture) => {
+      texture.wrapS = RepeatWrapping;
+      texture.wrapT = RepeatWrapping;
+      texture.repeat.set(TEXTURE_REPEAT, TEXTURE_REPEAT);
+      texture.needsUpdate = true;
+    });
+  });
+
   const horizonChapter = CHAPTERS[HORIZON_CHAPTER_INDEX];
   const waterCenterZ = horizonChapter.position[2] - 20;
   const waterLevel = valleyHeightAt(0, waterCenterZ, DEFAULT_VALLEY_CONFIG) + 1.5;
@@ -69,10 +83,14 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
     meshRef.current.position.y = waterLevel - (1 - waterVisibility) * WATER_RISE_DISTANCE;
     materialRef.current.emissiveIntensity = 0.5 + Math.sin(clock.elapsedTime * 0.8) * 0.12;
 
+    const time = clock.elapsedTime;
+    if (normalMap) {
+      normalMap.offset.set(time * FLOW_SPEED_X, time * FLOW_SPEED_Y);
+    }
+
     const meshGeometry = meshRef.current.geometry;
     const position = meshGeometry.attributes.position as BufferAttribute;
     const colorAttr = meshGeometry.attributes.color as BufferAttribute;
-    const time = clock.elapsedTime;
     for (let i = 0; i < position.count; i += 1) {
       const x = basePositions[i * 3];
       const z = basePositions[i * 3 + 2];
@@ -102,6 +120,8 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
       <meshStandardMaterial
         ref={materialRef}
         vertexColors
+        normalMap={normalMap}
+        normalScale={[0.6, 0.6]}
         emissive="#123a7a"
         emissiveIntensity={0.55}
         roughness={0.08}
