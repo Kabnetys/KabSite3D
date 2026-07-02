@@ -19,6 +19,9 @@ interface ChapterTextModule3DProps {
   peakProgress: number;
   fadeHalfWidth?: number;
   textSize?: number;
+  /** Multiplier applied to the heading relative to textSize -- bump this for
+   * a big glowing stat callout (e.g. "26%") over a small label. */
+  headingScale?: number;
 }
 
 const FONT_URL = "/fonts/droid_sans_regular.typeface.json";
@@ -32,7 +35,7 @@ const HEADING_RGB = "120,225,255";
 // a glance while flying past.
 const DEFAULT_TEXT_SIZE = 0.6;
 const DEFAULT_FADE_HALF_WIDTH = 0.06;
-const HEADING_SCALE = 1.3;
+const DEFAULT_HEADING_SCALE = 1.3;
 const TEXT_DEPTH = 0.05;
 const HEADING_DEPTH = 0.07;
 const PANEL_DEPTH = 0.14;
@@ -64,6 +67,7 @@ export function ChapterTextModule3D({
   peakProgress,
   fadeHalfWidth = DEFAULT_FADE_HALF_WIDTH,
   textSize = DEFAULT_TEXT_SIZE,
+  headingScale = DEFAULT_HEADING_SCALE,
 }: ChapterTextModule3DProps) {
   const groupRef = useRef<Group>(null);
   const panelRef = useRef<Mesh>(null);
@@ -71,12 +75,12 @@ export function ChapterTextModule3D({
   const textMaterialRefs = useRef<MeshStandardMaterial[]>([]);
   const headingMaterialRef = useRef<MeshStandardMaterial | null>(null);
 
-  const headingSize = textSize * HEADING_SCALE;
+  const headingSize = textSize * headingScale;
   const lineHeight = textSize * 1.4;
   const headingGap = heading ? headingSize * 1.9 : 0;
 
   const longestChars = Math.max(
-    heading ? heading.length * (HEADING_SCALE * 0.92) : 0,
+    heading ? heading.length * (headingScale * 0.92) : 0,
     ...lines.map((line) => line.length)
   );
   const panelWidth = Math.min(

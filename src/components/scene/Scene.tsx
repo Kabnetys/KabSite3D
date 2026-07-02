@@ -20,6 +20,7 @@ import { getLightColorAt, getLightIntensityAt } from "@/lib/chapterAppearance";
 interface ChapterPanelConfig {
   id: string;
   heading?: string;
+  headingScale?: number;
   lines: string[];
   /** Point along the continuous scroll (0..1) where this beat peaks. */
   peakProgress: number;
@@ -30,100 +31,160 @@ interface ChapterPanelConfig {
   vertical: number;
 }
 
-// A short cinematic scenario told across the valley's flight, broken into
-// small narrative beats (rather than one dense panel per chapter). Several
-// beats can share the same chapter and appear one after another as the
-// camera continues past -- each one fades in, peaks, and fades back out on
-// its own, continuously tied to scrollProgress.
+// The confirmed storyboard from CONCEPT.md, section 4 ("Les 6 chapitres"),
+// told across the valley's flight as short factual beats -- a business
+// presentation, not marketing poetry. Several beats can share the same
+// chapter and appear one after another as the camera continues past, each
+// fading in, peaking, and fading back out continuously with scrollProgress.
 const CHAPTER_PANELS: ChapterPanelConfig[] = [
-  // -- L'Aube : l'idée qui manquait --
+  // -- L'Aube : l'accroche du dossier entreprise --
   {
     id: "aube-1",
-    heading: "L'AUBE",
-    lines: ["Chaque artisan mérite", "un outil à son image."],
-    peakProgress: 0.02,
+    lines: ["Pour chaque artisan,", "un outil sur mesure."],
+    peakProgress: 0.04,
     fadeHalfWidth: 0.06,
     distance: 8,
     lateral: -1.6,
     vertical: 0.9,
   },
-  // -- La Friction : le quotidien qui coince --
+  // -- La Friction : les points de douleur du dossier entreprise, un a la fois --
   {
     id: "friction-1",
-    lines: ["Excel qui déborde.", "Des versions qui se contredisent."],
-    peakProgress: 0.13,
-    fadeHalfWidth: 0.05,
+    lines: ["Excel en versions", "multiples."],
+    peakProgress: 0.18,
+    fadeHalfWidth: 0.035,
     distance: 8,
     lateral: 1.7,
     vertical: 1,
   },
   {
     id: "friction-2",
-    lines: ["Le temps perdu,", "ça suffit."],
-    peakProgress: 0.19,
-    fadeHalfWidth: 0.05,
+    lines: ["Erreurs de saisie."],
+    peakProgress: 0.23,
+    fadeHalfWidth: 0.035,
     distance: 7.5,
     lateral: -1.5,
     vertical: 0.7,
   },
-  // -- La Percee : on construit la solution --
+  {
+    id: "friction-3",
+    lines: ["Temps perdu", "à recopier."],
+    peakProgress: 0.28,
+    fadeHalfWidth: 0.035,
+    distance: 8,
+    lateral: 1.8,
+    vertical: 1,
+  },
+  {
+    id: "friction-4",
+    lines: ["Des outils", "inadaptés."],
+    peakProgress: 0.33,
+    fadeHalfWidth: 0.035,
+    distance: 7.5,
+    lateral: -1.6,
+    vertical: 0.8,
+  },
+  // -- La Percee : une carte par service (dossier entreprise + fr.json) --
   {
     id: "percee-1",
-    heading: "LA PERCÉE",
-    lines: ["Alors on construit."],
-    peakProgress: 0.32,
-    fadeHalfWidth: 0.05,
-    distance: 8,
+    heading: "APPLICATIONS MÉTIER",
+    lines: ["Multi-utilisateurs,", "sécurisée, évolutive."],
+    peakProgress: 0.4,
+    fadeHalfWidth: 0.04,
+    distance: 8.5,
     lateral: -1.8,
     vertical: 1,
   },
   {
     id: "percee-2",
-    lines: ["Applications métier.", "Sites. Automatisation."],
-    peakProgress: 0.4,
-    fadeHalfWidth: 0.06,
-    distance: 8,
-    lateral: 1.6,
-    vertical: 0.8,
+    heading: "SITES INTERNET",
+    lines: ["Vitrine, portail client,", "espace admin."],
+    peakProgress: 0.46,
+    fadeHalfWidth: 0.04,
+    distance: 8.5,
+    lateral: 1.8,
+    vertical: 1,
   },
-  // -- L'Intelligence : l'IA au service du geste --
+  {
+    id: "percee-3",
+    heading: "AUTOMATISATION",
+    lines: ["Excel, Outlook connectés,", "zéro ressaisie."],
+    peakProgress: 0.52,
+    fadeHalfWidth: 0.04,
+    distance: 8.5,
+    lateral: -1.8,
+    vertical: 1,
+  },
+  // -- L'Intelligence : la position du dossier entreprise + chiffres sourcés --
   {
     id: "intelligence-1",
-    heading: "L'INTELLIGENCE",
     lines: ["L'IA propose,", "on dispose."],
-    peakProgress: 0.55,
-    fadeHalfWidth: 0.07,
+    peakProgress: 0.58,
+    fadeHalfWidth: 0.035,
     distance: 8,
     lateral: 2.2,
     vertical: 1.1,
   },
-  // -- L'Equipe : deux visages derriere le projet --
+  {
+    id: "intelligence-stat-1",
+    heading: "26%",
+    headingScale: 2.4,
+    lines: ["de productivité en plus", "par développeur (McKinsey, 2024)"],
+    peakProgress: 0.63,
+    fadeHalfWidth: 0.035,
+    distance: 8.5,
+    lateral: -2.2,
+    vertical: 1.1,
+  },
+  {
+    id: "intelligence-stat-2",
+    heading: "6h",
+    headingScale: 2.4,
+    lines: ["gagnées par équipe", "chaque semaine (McKinsey, 2024)"],
+    peakProgress: 0.68,
+    fadeHalfWidth: 0.035,
+    distance: 8.5,
+    lateral: 2.2,
+    vertical: 1.1,
+  },
+  {
+    id: "intelligence-stat-3",
+    heading: "55%",
+    headingScale: 2.4,
+    lines: ["de code écrit plus vite", "avec l'IA (GitHub, 2024)"],
+    peakProgress: 0.73,
+    fadeHalfWidth: 0.035,
+    distance: 8.5,
+    lateral: -2.2,
+    vertical: 1.1,
+  },
+  // -- L'Equipe : portraits + vraies citations (fr.json) --
   {
     id: "equipe-1",
-    heading: "L'ÉQUIPE",
-    lines: ["Anthony & Kyllian."],
-    peakProgress: 0.68,
-    fadeHalfWidth: 0.05,
-    distance: 8,
-    lateral: -1.6,
+    heading: "ANTHONY BONJOUR",
+    lines: ["Directeur Général", "« Réseau, infrastructure,", "cybersécurité — j'interviens", "là où la technique", "fait la différence. »"],
+    peakProgress: 0.78,
+    fadeHalfWidth: 0.04,
+    distance: 8.5,
+    lateral: -1.8,
     vertical: 1,
   },
   {
     id: "equipe-2",
-    lines: ["Deux regards,", "un seul objectif : vous."],
-    peakProgress: 0.74,
-    fadeHalfWidth: 0.05,
-    distance: 7.5,
-    lateral: 1.6,
-    vertical: 0.8,
+    heading: "KYLLIAN BLETRIX",
+    lines: ["Président", "« Coder, transmettre,", "entreprendre — c'est ce qui", "me fait me lever chaque matin. »"],
+    peakProgress: 0.83,
+    fadeHalfWidth: 0.04,
+    distance: 8.5,
+    lateral: 1.8,
+    vertical: 1,
   },
-  // -- L'Horizon : le depart d'une nouvelle histoire --
+  // -- L'Horizon : la conclusion du dossier entreprise --
   {
     id: "horizon-1",
-    heading: "L'HORIZON",
     lines: ["Votre projet", "commence ici."],
-    peakProgress: 0.85,
-    fadeHalfWidth: 0.06,
+    peakProgress: 0.9,
+    fadeHalfWidth: 0.05,
     distance: 8,
     lateral: -1.8,
     vertical: 1,
@@ -131,8 +192,8 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   {
     id: "horizon-2",
     lines: ["Parlons-en."],
-    peakProgress: 0.93,
-    fadeHalfWidth: 0.06,
+    peakProgress: 0.97,
+    fadeHalfWidth: 0.05,
     distance: 7,
     lateral: 1.5,
     vertical: 0.7,
@@ -149,7 +210,7 @@ const CHAPTER_PANEL_TRANSFORMS = CHAPTER_PANELS.map((config) => ({
   ),
 }));
 
-const INTELLIGENCE_PEAK_PROGRESS = 0.55;
+const INTELLIGENCE_PEAK_PROGRESS = 0.58;
 const APP_MOCKUP_TRANSFORM = computePanelTransformAtProgress(INTELLIGENCE_PEAK_PROGRESS, 9, -3, 0.5);
 
 interface SceneProps {
@@ -228,6 +289,7 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
           >
             <ChapterTextModule3D
               heading={config.heading}
+              headingScale={config.headingScale}
               lines={config.lines}
               scrollProgress={scrollProgress}
               peakProgress={config.peakProgress}
