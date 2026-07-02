@@ -17,7 +17,13 @@ import { CHAPTERS } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
 
 const AUBE_CHAPTER_INDEX = 0;
-const AUBE_TEXT_LINES = ["Pour chaque artisan,", "un outil sur mesure."];
+const AUBE_TEXT_LINES = [
+  "Pour chaque artisan,",
+  "un outil sur mesure.",
+  "KabNetys imagine des",
+  "solutions pensées",
+  "pour votre métier.",
+];
 const aubeChapter = CHAPTERS[AUBE_CHAPTER_INDEX];
 const AUBE_TEXT_X = aubeChapter.position[0] + 9;
 const AUBE_TEXT_Z = aubeChapter.position[2] - 8;

@@ -87,3 +87,38 @@ export function getChapterBlend(progress: number): { index: number; t: number } 
   const t = span > 0 ? Math.min(1, Math.max(0, (progress - start) / span)) : 0;
   return { index: activeIndex, t };
 }
+
+// Fraction of each chapter's scroll span spent "parked" on that chapter
+// (camera and content fully still, readable) before traveling on to the
+// next one. The remaining (1 - HOLD_FRACTION) of the span is the actual
+// travel/transition, eased with smoothstep.
+const HOLD_FRACTION = 0.62;
+
+function smoothstep01(t: number): number {
+  const clamped = Math.min(1, Math.max(0, t));
+  return clamped * clamped * (3 - 2 * clamped);
+}
+
+// Remaps raw scroll progress into "stop and read, then travel" pacing:
+// the visuals (camera, fog, chapter text, transitions) hold steady on each
+// chapter for most of its scroll span, then transition quickly to the
+// next chapter right as the user finishes scrolling through that span --
+// instead of continuously drifting the whole time, which read as an
+// aimless flythrough rather than a site with distinct sections.
+export function remapScrollForStops(progress: number): number {
+  const clamped = Math.min(1, Math.max(0, progress));
+  const activeIndex = getActiveChapterIndex(clamped);
+  const nextIndex = Math.min(CHAPTERS.length - 1, activeIndex + 1);
+  if (activeIndex === nextIndex) return CHAPTERS[activeIndex].scrollProgress;
+
+  const start = CHAPTERS[activeIndex].scrollProgress;
+  const end = CHAPTERS[nextIndex].scrollProgress;
+  const span = end - start;
+  if (span <= 0) return start;
+
+  const t = (clamped - start) / span;
+  if (t <= HOLD_FRACTION) return start;
+
+  const travelT = smoothstep01((t - HOLD_FRACTION) / (1 - HOLD_FRACTION));
+  return start + travelT * span;
+}
