@@ -26,6 +26,19 @@ export const DEFAULT_VALLEY_CONFIG: ValleyConfig = {
 const noise2D = createNoise2D(() => 0.42);
 const detailNoise2D = createNoise2D(() => 0.87);
 
+const COAST_FALLOFF_START_Z = -260;
+const COAST_FALLOFF_END_Z = -420;
+const COAST_MIN_RIDGE_SCALE = 0.3;
+
+function coastalRidgeScale(z: number): number {
+  const t = Math.min(
+    1,
+    Math.max(0, (COAST_FALLOFF_START_Z - z) / (COAST_FALLOFF_START_Z - COAST_FALLOFF_END_Z))
+  );
+  const smooth = t * t * (3 - 2 * t);
+  return 1 - smooth * (1 - COAST_MIN_RIDGE_SCALE);
+}
+
 export function valleyHeightAt(
   x: number,
   z: number,
@@ -34,7 +47,7 @@ export function valleyHeightAt(
   const n = noise2D(x * 0.015, z * 0.015);
   const detail = detailNoise2D(x * 0.08, z * 0.08) * 2.8;
   const fineDetail = detailNoise2D(x * 0.22 + 100, z * 0.22 + 100) * 1.1;
-  const ridge = n * config.noiseHeight + detail + fineDetail;
+  const ridge = (n * config.noiseHeight + detail + fineDetail) * coastalRidgeScale(z);
   const carve = config.valleyDepth * Math.exp(-(x * x) / (config.valleyWidth * config.valleyWidth));
   return ridge - carve;
 }
