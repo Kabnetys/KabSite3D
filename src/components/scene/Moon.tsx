@@ -1,5 +1,6 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Billboard } from "@react-three/drei";
 import { AdditiveBlending, CanvasTexture, Mesh, MeshBasicMaterial } from "three";
 import { CHAPTERS } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
@@ -91,17 +92,19 @@ export function Moon() {
         <sphereGeometry args={[MOON_RADIUS, 24, 24]} />
         <meshBasicMaterial color="#f4f1e2" toneMapped={false} fog={false} />
       </mesh>
-      <mesh ref={glowRef} position={[MOON_X, MOON_Y, moonZ]}>
-        <planeGeometry args={[MOON_RADIUS * 6, MOON_RADIUS * 6]} />
-        <meshBasicMaterial
-          map={glowTexture}
-          transparent
-          depthWrite={false}
-          blending={AdditiveBlending}
-          toneMapped={false}
-          fog={false}
-        />
-      </mesh>
+      <Billboard position={[MOON_X, MOON_Y, moonZ]}>
+        <mesh ref={glowRef}>
+          <planeGeometry args={[MOON_RADIUS * 6, MOON_RADIUS * 6]} />
+          <meshBasicMaterial
+            map={glowTexture}
+            transparent
+            depthWrite={false}
+            blending={AdditiveBlending}
+            toneMapped={false}
+            fog={false}
+          />
+        </mesh>
+      </Billboard>
       <mesh
         ref={streakRef}
         position={[MOON_X, waterLevel + 0.3, streakCenterZ]}
