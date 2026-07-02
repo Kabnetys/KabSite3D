@@ -10,7 +10,7 @@ import {
   RepeatWrapping,
 } from "three";
 import { createNoise2D } from "simplex-noise";
-import { CHAPTERS } from "@/lib/chapters";
+import { CHAPTERS, getChapterBlend } from "@/lib/chapters";
 import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
 
 interface ValleyWaterProps {
@@ -18,8 +18,6 @@ interface ValleyWaterProps {
 }
 
 const HORIZON_CHAPTER_INDEX = 5;
-const WATER_FADE_START_PROGRESS = 0.35;
-const WATER_FADE_END_PROGRESS = 0.85;
 const WATER_WIDTH = 2200;
 const WATER_LENGTH = 1000;
 const WATER_LEVEL_OFFSET = 8.5;
@@ -73,15 +71,8 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
   const waterLevel = valleyHeightAt(0, waterCenterZ, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
 
   useFrame(({ clock }) => {
-    const fadeT = Math.min(
-      1,
-      Math.max(
-        0,
-        (scrollProgress - WATER_FADE_START_PROGRESS) /
-          (WATER_FADE_END_PROGRESS - WATER_FADE_START_PROGRESS)
-      )
-    );
-    const waterVisibility = fadeT * fadeT * (3 - 2 * fadeT);
+    const { index, t } = getChapterBlend(scrollProgress);
+    const waterVisibility = index >= HORIZON_CHAPTER_INDEX - 1 ? (index === HORIZON_CHAPTER_INDEX - 1 ? t : 1) : 0;
 
     if (!meshRef.current || !materialRef.current) return;
 
