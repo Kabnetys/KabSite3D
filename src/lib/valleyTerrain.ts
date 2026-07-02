@@ -26,13 +26,13 @@ export const DEFAULT_VALLEY_CONFIG: ValleyConfig = {
 const noise2D = createNoise2D(() => 0.42);
 const detailNoise2D = createNoise2D(() => 0.87);
 
-const COAST_FALLOFF_START_Z = -80;
-const COAST_FALLOFF_END_Z = -210;
-const COAST_MIN_RIDGE_SCALE = 0;
+const COAST_FALLOFF_START_Z = -220;
+const COAST_FALLOFF_END_Z = -400;
+const COAST_MIN_RIDGE_SCALE = 0.03;
 
-const EDGE_FALLOFF_START_X = 60;
-const EDGE_FALLOFF_END_X = 150;
-const EDGE_MIN_RIDGE_SCALE = 0;
+const EDGE_FALLOFF_START_X = 100;
+const EDGE_FALLOFF_END_X = 195;
+const EDGE_MIN_RIDGE_SCALE = 0.02;
 
 function coastalRidgeScale(z: number): number {
   const t = Math.min(

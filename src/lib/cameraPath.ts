@@ -6,12 +6,13 @@ const HOVER_OFFSET = 8;
 const LOOKAT_FORWARD = 45;
 const LOOKAT_LATERAL_DAMPING = 0.5;
 const MAX_PITCH_DROP = 10;
+const MAX_PITCH_DROP_WATER_ZONE = 34;
 const SAMPLES_PER_CHAPTER = 6;
 
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_CENTER_Z_OFFSET = -20;
 const WATER_LEVEL_OFFSET = 8.5;
-const CAMERA_ABOVE_WATER_MARGIN = 6;
+const CAMERA_ABOVE_WATER_MARGIN = 50;
 const WATER_ZONE_START_Z = -220;
 
 function terrainHeight(x: number, z: number): number {
@@ -76,7 +77,8 @@ function buildLookAtPoints(): Vector3[] {
     const lookZ = point.z - LOOKAT_FORWARD;
     const lookX = interpolateXAt(lookZ) * LOOKAT_LATERAL_DAMPING + point.x * (1 - LOOKAT_LATERAL_DAMPING);
     const groundLookY = terrainHeight(lookX, lookZ);
-    const lookY = Math.max(groundLookY, point.y - MAX_PITCH_DROP);
+    const pitchDrop = point.z <= WATER_ZONE_START_Z ? MAX_PITCH_DROP_WATER_ZONE : MAX_PITCH_DROP;
+    const lookY = Math.max(groundLookY, point.y - pitchDrop);
     return new Vector3(lookX, lookY, lookZ);
   });
 }
