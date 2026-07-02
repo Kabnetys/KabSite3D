@@ -19,7 +19,14 @@ interface ValleyWaterProps {
 
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_WIDTH = 2200;
-const WATER_LENGTH = 1000;
+// The plane only covers z <= WATER_NEAR_Z (roughly where the rock starts
+// tapering toward its hard clip) through WATER_FAR_Z, so mounting it at
+// t=0 never exposes water under the earlier valley -- there is simply no
+// water geometry there to show through the trough.
+const WATER_NEAR_Z = -300;
+const WATER_FAR_Z = -900;
+const WATER_LENGTH = WATER_NEAR_Z - WATER_FAR_Z;
+const WATER_CENTER_Z = (WATER_NEAR_Z + WATER_FAR_Z) / 2;
 const WATER_LEVEL_OFFSET = 8.5;
 const WATER_SEGMENTS = 72;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
@@ -66,8 +73,8 @@ export function ValleyWater(_props: ValleyWaterProps) {
   });
 
   const horizonChapter = CHAPTERS[HORIZON_CHAPTER_INDEX];
-  const waterCenterZ = horizonChapter.position[2] - 20;
-  const waterLevel = valleyHeightAt(0, waterCenterZ, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
+  const waterLevelZ = horizonChapter.position[2] - 20;
+  const waterLevel = valleyHeightAt(0, waterLevelZ, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
 
   useFrame(({ clock }) => {
     if (!meshRef.current || !materialRef.current) return;
@@ -112,7 +119,7 @@ export function ValleyWater(_props: ValleyWaterProps) {
   });
 
   return (
-    <mesh ref={meshRef} geometry={geometry} position={[0, waterLevel, waterCenterZ]}>
+    <mesh ref={meshRef} geometry={geometry} position={[0, waterLevel, WATER_CENTER_Z]}>
       <meshStandardMaterial
         ref={materialRef}
         vertexColors
