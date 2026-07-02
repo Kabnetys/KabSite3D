@@ -18,8 +18,9 @@ interface ValleyWaterProps {
 }
 
 const HORIZON_CHAPTER_INDEX = 5;
-const WATER_WIDTH = 900;
-const WATER_LENGTH = 700;
+const WATER_WIDTH = 1400;
+const WATER_LENGTH = 1000;
+const WATER_LEVEL_OFFSET = 7;
 const WATER_SEGMENTS = 72;
 const WATER_RISE_DISTANCE = 14;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
@@ -67,7 +68,7 @@ export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
 
   const horizonChapter = CHAPTERS[HORIZON_CHAPTER_INDEX];
   const waterCenterZ = horizonChapter.position[2] - 20;
-  const waterLevel = valleyHeightAt(0, waterCenterZ, DEFAULT_VALLEY_CONFIG) + 1.5;
+  const waterLevel = valleyHeightAt(0, waterCenterZ, DEFAULT_VALLEY_CONFIG) + WATER_LEVEL_OFFSET;
 
   useFrame(({ clock }) => {
     const { index, t } = getChapterBlend(scrollProgress);
