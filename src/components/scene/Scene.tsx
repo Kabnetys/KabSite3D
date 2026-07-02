@@ -50,8 +50,8 @@ export function Scene({ scrollProgress, reducedMotion }: SceneProps) {
       camera={{ fov: 62, near: 0.1, far: 900 }}
     >
       <color attach="background" args={["#040d1a"]} />
-      <ambientLight intensity={0.28} color="#8a8478" />
-      <hemisphereLight args={["#00b4ff", "#1a1712", 0.36]} />
+      <ambientLight intensity={0.34} color="#8a8478" />
+      <hemisphereLight args={["#00b4ff", "#1a1712", 0.42]} />
       <RimLight scrollProgress={scrollProgress} />
       <ValleyAtmosphere scrollProgress={scrollProgress} />
       <Moon />

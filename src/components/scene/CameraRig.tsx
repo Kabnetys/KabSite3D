@@ -7,6 +7,7 @@ import {
   WATER_SAFE_MIN_Y,
   WATER_ZONE_START_Z,
 } from "@/lib/cameraPath";
+import { valleyHeightAt, DEFAULT_VALLEY_CONFIG } from "@/lib/valleyTerrain";
 import type { MouseParallax } from "@/hooks/useMouseParallax";
 
 interface CameraRigProps {
@@ -18,6 +19,11 @@ interface CameraRigProps {
 const MAX_YAW_OFFSET = (4 * Math.PI) / 180;
 const MAX_POSITION_DRIFT_X = 1.4;
 const MAX_POSITION_DRIFT_Y = 0.8;
+// Minimum clearance above the local terrain surface, checked every frame
+// after mouse drift is applied -- the base path already keeps this much
+// clearance, but pointing the mouse toward the bottom of the screen could
+// push the camera down into a nearby ridge without it.
+const MIN_GROUND_CLEARANCE = 3;
 
 export function CameraRig({ scrollProgress, reducedMotion, mouse }: CameraRigProps) {
   const targetPosition = useRef(new Vector3());
@@ -53,12 +59,16 @@ export function CameraRig({ scrollProgress, reducedMotion, mouse }: CameraRigPro
     camera.position.x += positionDrift.current.x;
     camera.position.y += positionDrift.current.y;
 
-    // The mouse drift above isn't aware of the water zone, so it could push
-    // the camera below the water surface near the Horizon finale. Re-clamp
-    // afterward instead of skipping drift there, so the mouse still has an
-    // effect but can never dip the camera underwater.
+    // The mouse drift above isn't aware of the terrain or the water zone,
+    // so it could push the camera below the water surface near the Horizon
+    // finale, or straight into a nearby ridge anywhere else. Re-clamp
+    // afterward instead of skipping drift, so the mouse still has an effect
+    // but can never dip the camera underground or underwater.
     if (camera.position.z <= WATER_ZONE_START_Z) {
       camera.position.y = Math.max(camera.position.y, WATER_SAFE_MIN_Y);
+    } else {
+      const groundY = valleyHeightAt(camera.position.x, camera.position.z, DEFAULT_VALLEY_CONFIG);
+      camera.position.y = Math.max(camera.position.y, groundY + MIN_GROUND_CLEARANCE);
     }
 
     currentLookAt.current.lerp(targetLookAt.current, smoothing);
