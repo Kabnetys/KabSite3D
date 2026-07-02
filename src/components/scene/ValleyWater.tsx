@@ -17,6 +17,11 @@ interface ValleyWaterProps {
   scrollProgress: number;
 }
 
+function smoothstep01(t: number): number {
+  const clamped = Math.min(1, Math.max(0, t));
+  return clamped * clamped * (3 - 2 * clamped);
+}
+
 const HORIZON_CHAPTER_INDEX = 5;
 const WATER_WIDTH = 2200;
 // The plane only covers z <= WATER_NEAR_Z through WATER_FAR_Z, so mounting
@@ -31,6 +36,14 @@ const WATER_FAR_Z = -900;
 const WATER_LENGTH = WATER_NEAR_Z - WATER_FAR_Z;
 const WATER_CENTER_Z = (WATER_NEAR_Z + WATER_FAR_Z) / 2;
 const WATER_LEVEL_OFFSET = 8.5;
+// Even with the geometry itself restricted to z <= WATER_NEAR_Z, the camera
+// can glimpse it from far away through gaps in the canyon walls before
+// actually arriving. Fade opacity in over a short window right as the
+// camera reaches that z (roughly scrollProgress 0.7-0.85 maps to camera
+// z -300..-370), so it's still mounted/loaded from t=0 but stays invisible
+// until there's nothing left to spoil.
+const WATER_FADE_START_PROGRESS = 0.76;
+const WATER_FADE_END_PROGRESS = 0.82;
 const WATER_SEGMENTS = 72;
 const NORMAL_RECOMPUTE_INTERVAL = 2;
 const TEXTURE_REPEAT = 16;
@@ -55,7 +68,7 @@ function buildWaterGeometry(): PlaneGeometry {
   return geometry;
 }
 
-export function ValleyWater(_props: ValleyWaterProps) {
+export function ValleyWater({ scrollProgress }: ValleyWaterProps) {
   const meshRef = useRef<Mesh>(null);
   const materialRef = useRef<MeshStandardMaterial>(null);
   const geometry = useMemo(() => buildWaterGeometry(), []);
@@ -82,11 +95,15 @@ export function ValleyWater(_props: ValleyWaterProps) {
   useFrame(({ clock }) => {
     if (!meshRef.current || !materialRef.current) return;
 
-    // Always mounted and rendered: the rock geometry itself stops well
-    // before the water's footprint, so it stays naturally hidden beneath
-    // the terrain everywhere except the Horizon finale where the rock ends.
-    meshRef.current.visible = true;
-    materialRef.current.opacity = 1;
+    // Mounted from t=0 (textures/geometry ready immediately, no pop-in),
+    // but only faded to visible right as the camera reaches the water's
+    // z-range, so it can't be spotted from afar through canyon gaps.
+    const fadeT = smoothstep01(
+      (scrollProgress - WATER_FADE_START_PROGRESS) /
+        (WATER_FADE_END_PROGRESS - WATER_FADE_START_PROGRESS)
+    );
+    meshRef.current.visible = fadeT > 0.001;
+    materialRef.current.opacity = fadeT;
     materialRef.current.emissiveIntensity = 0.16 + Math.sin(clock.elapsedTime * 0.8) * 0.05;
 
     const time = clock.elapsedTime;
@@ -133,7 +150,7 @@ export function ValleyWater(_props: ValleyWaterProps) {
         roughness={0.32}
         metalness={0.35}
         transparent
-        opacity={1}
+        opacity={0}
       />
     </mesh>
   );
