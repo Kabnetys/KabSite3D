@@ -10,6 +10,7 @@ import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { ValleyWater } from "./ValleyWater";
 import { Moon } from "./Moon";
 import { ChapterTextModule3D } from "./ChapterTextModule3D";
+import { AppMockupModel } from "./AppMockupModel";
 import { CameraRig } from "./CameraRig";
 import { Vector3 } from "three";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
@@ -17,21 +18,28 @@ import { computeChapterPanelTransform } from "@/lib/chapterPanels";
 
 interface ChapterPanelConfig {
   chapterIndex: number;
+  heading?: string;
   lines: string[];
   distance: number;
   lateral: number;
   vertical: number;
 }
 
+// Real copy pulled from KabSit (the static marketing site)'s src/messages/fr.json,
+// remapped onto the valley's six scroll-stops:
+//   Aube -> hero, Friction -> method's first step (discovery), Percee -> services,
+//   Intelligence -> the app-mockup section, Equipe -> team, Horizon -> contact.
 const CHAPTER_PANELS: ChapterPanelConfig[] = [
   {
     chapterIndex: 0,
+    heading: "L'AUBE",
     lines: [
-      "Pour chaque artisan,",
-      "un outil sur mesure.",
-      "KabNetys imagine des",
-      "solutions pensées",
-      "pour votre métier.",
+      "Des outils métier,",
+      "pas des bricolages.",
+      "Développement sur mesure",
+      "pour les TPE et PME qui",
+      "veulent enfin des solutions",
+      "qui leur ressemblent.",
     ],
     distance: 10,
     lateral: -2,
@@ -39,35 +47,65 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     chapterIndex: 1,
-    lines: ["Excel en versions", "multiples,", "erreurs de saisie,", "temps perdu."],
+    heading: "ÉCHANGE TERRAIN",
+    lines: [
+      "On pose les bonnes",
+      "questions avant d'écrire",
+      "la moindre ligne de code.",
+      "On préfère commencer",
+      "par une présence physique.",
+    ],
     distance: 10,
     lateral: 2,
     vertical: 1,
   },
   {
     chapterIndex: 2,
-    lines: ["Applications métier,", "sites internet,", "automatisation."],
+    heading: "SERVICES",
+    lines: [
+      "Applications métier",
+      "Sites internet",
+      "Automatisation",
+      "Sur mesure, sécurisé,",
+      "zéro ressaisie.",
+    ],
     distance: 10,
     lateral: -2,
     vertical: 1,
   },
   {
     chapterIndex: 3,
-    lines: ["L'IA propose,", "on dispose.", "Un copilote,", "jamais un pilote."],
+    heading: "APPLICATIONS",
+    lines: [
+      "Des interfaces qui",
+      "travaillent pour vous.",
+      "Multi-utilisateurs,",
+      "sécurisée, évolutive,",
+      "sur mesure.",
+    ],
     distance: 10,
-    lateral: 2,
-    vertical: 1,
+    lateral: 2.4,
+    vertical: 1.2,
   },
   {
     chapterIndex: 4,
-    lines: ["Kyllian & Anthony.", "Deux devs,", "une exigence commune."],
+    heading: "L'ÉQUIPE",
+    lines: [
+      "Anthony Bonjour",
+      "Directeur Général",
+      "Kyllian Bletrix",
+      "Président",
+      "Deux profils,",
+      "un spectre complet.",
+    ],
     distance: 10,
     lateral: -2,
     vertical: 1,
   },
   {
     chapterIndex: 5,
-    lines: ["Votre projet", "commence ici."],
+    heading: "CONTACT",
+    lines: ["Parlons de votre projet.", "On vous répond sous 24h."],
     distance: 9,
     lateral: 3,
     vertical: 0.5,
@@ -83,6 +121,9 @@ const CHAPTER_PANEL_TRANSFORMS = CHAPTER_PANELS.map((config) => ({
     config.vertical
   ),
 }));
+
+const INTELLIGENCE_CHAPTER_INDEX = 3;
+const APP_MOCKUP_TRANSFORM = computeChapterPanelTransform(INTELLIGENCE_CHAPTER_INDEX, 10, -3, 0.5);
 
 interface SceneProps {
   scrollProgress: number;
@@ -155,11 +196,18 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
           >
             <ChapterTextModule3D
               chapterIndex={config.chapterIndex}
+              heading={config.heading}
               lines={config.lines}
               scrollProgress={scrollProgress}
             />
           </group>
         ))}
+        <group
+          position={APP_MOCKUP_TRANSFORM.position}
+          rotation={[0, APP_MOCKUP_TRANSFORM.rotationY, 0]}
+        >
+          <AppMockupModel />
+        </group>
       </Suspense>
       <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
     </Canvas>
