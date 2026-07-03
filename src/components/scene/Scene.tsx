@@ -1,13 +1,14 @@
 import { Suspense, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Canvas } from "@react-three/fiber";
-import { DirectionalLight, Mesh, PointLight, Vector3 } from "three";
+import { DirectionalLight, PointLight, Vector3 } from "three";
 import { detectPerformanceTier } from "@/lib/devicePerformance";
 import { useMouseParallax } from "@/hooks/useMouseParallax";
 import { getCameraPositionAt, getLookAtPositionAt } from "@/lib/cameraPath";
 import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { ValleyWater } from "./ValleyWater";
+import { ValleyLightTrail } from "./ValleyLightTrail";
 import { Moon } from "./Moon";
 import { AppMockupModel } from "./AppMockupModel";
 import { CameraRig } from "./CameraRig";
@@ -50,7 +51,7 @@ function RimLight({ scrollProgress, theme }: RimLightProps) {
     // stays a fixed daylight sun regardless of chapter.
     if (theme === "dark") {
       lightRef.current.color.copy(getLightColorAt(scrollProgress));
-      lightRef.current.intensity = getLightIntensityAt(scrollProgress) * 0.12;
+      lightRef.current.intensity = getLightIntensityAt(scrollProgress) * 0.05;
     } else {
       lightRef.current.color.set(palette.sunColor);
       lightRef.current.intensity = palette.sunIntensity;
@@ -65,10 +66,10 @@ interface TravelingLightProps {
   theme: SceneTheme;
 }
 
-// hubtown.co.in's signature: the scene stays mostly dark, and one bright,
-// near-white light travels ahead of the camera, revealing the rock as it
-// passes. Point light (no shadows, cheap) + a small additive glow core so
-// the source itself reads as a luminous orb in the distance.
+// The point light rides the light trail's head (see ValleyLightTrail) so the
+// canyon walls catch a cold blue-white glow exactly where the ribbon of
+// energy is passing -- the trail is the visible light source, this light is
+// what lets it "illuminate the rock on its way through".
 const TRAVEL_LIGHT_AHEAD = 26;
 const TRAVEL_LIGHT_LIFT = 4;
 
@@ -79,7 +80,6 @@ const travelTarget = new Vector3();
 
 function TravelingLight({ scrollProgress, theme }: TravelingLightProps) {
   const lightRef = useRef<PointLight>(null);
-  const coreRef = useRef<Mesh>(null);
 
   useFrame(({ clock }, delta) => {
     if (!lightRef.current) return;
@@ -98,25 +98,10 @@ function TravelingLight({ scrollProgress, theme }: TravelingLightProps) {
     lightRef.current.position.lerp(travelTarget, smoothing);
 
     const flicker = 1 + Math.sin(clock.elapsedTime * 2.3) * 0.06;
-    lightRef.current.intensity = (theme === "dark" ? 42 : 0) * flicker;
-
-    if (coreRef.current) {
-      coreRef.current.position.copy(lightRef.current.position);
-      coreRef.current.visible = theme === "dark";
-      const scale = 1 + Math.sin(clock.elapsedTime * 1.7) * 0.12;
-      coreRef.current.scale.setScalar(scale);
-    }
+    lightRef.current.intensity = (theme === "dark" ? 55 : 0) * flicker;
   });
 
-  return (
-    <>
-      <pointLight ref={lightRef} color="#eaf4ff" distance={70} decay={1.7} intensity={0} />
-      <mesh ref={coreRef}>
-        <sphereGeometry args={[0.35, 16, 16]} />
-        <meshBasicMaterial color="#f4faff" toneMapped={false} fog={false} />
-      </mesh>
-    </>
-  );
+  return <pointLight ref={lightRef} color="#9cc8ff" distance={80} decay={1.7} intensity={0} />;
 }
 
 export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
@@ -139,6 +124,7 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
       />
       <RimLight scrollProgress={scrollProgress} theme={theme} />
       <TravelingLight scrollProgress={scrollProgress} theme={theme} />
+      <ValleyLightTrail scrollProgress={scrollProgress} theme={theme} />
       <ValleyAtmosphere scrollProgress={scrollProgress} theme={theme} />
       <Moon theme={theme} />
       <Suspense fallback={null}>

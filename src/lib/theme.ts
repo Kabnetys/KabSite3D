@@ -27,10 +27,10 @@ export const THEME_PALETTES: Record<SceneTheme, ThemePalette> = {
     // dark and the bright traveling light (Scene.tsx TravelingLight) does
     // the revealing as it passes over the rock.
     ambientColor: "#8a8478",
-    ambientIntensity: 0.14,
+    ambientIntensity: 0.07,
     hemisphereSky: "#00b4ff",
     hemisphereGround: "#1a1712",
-    hemisphereIntensity: 0.18,
+    hemisphereIntensity: 0.1,
     sunColor: "#dce8ff",
     sunIntensity: 2,
     fogColor: "#2a1a4a",
