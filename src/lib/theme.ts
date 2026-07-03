@@ -22,12 +22,15 @@ export interface ThemePalette {
 
 export const THEME_PALETTES: Record<SceneTheme, ThemePalette> = {
   dark: {
-    background: "#040d1a",
+    background: "#030a14",
+    // Kept deliberately low: hubtown-style night -- the scene reads mostly
+    // dark and the bright traveling light (Scene.tsx TravelingLight) does
+    // the revealing as it passes over the rock.
     ambientColor: "#8a8478",
-    ambientIntensity: 0.34,
+    ambientIntensity: 0.14,
     hemisphereSky: "#00b4ff",
     hemisphereGround: "#1a1712",
-    hemisphereIntensity: 0.42,
+    hemisphereIntensity: 0.18,
     sunColor: "#dce8ff",
     sunIntensity: 2,
     fogColor: "#2a1a4a",
