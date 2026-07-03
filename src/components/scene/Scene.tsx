@@ -9,11 +9,12 @@ import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { ValleyWater } from "./ValleyWater";
 import { ValleyLightTrail } from "./ValleyLightTrail";
-import { TrailNodes } from "./TrailNodes";
+import { TrailSplit } from "./TrailSplit";
 import { Moon } from "./Moon";
 import { AppMockupModel } from "./AppMockupModel";
 import { CameraRig } from "./CameraRig";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
+import { getWorldProgress, getSplitPhase } from "@/lib/scrollPhases";
 import type { AppExample } from "@/lib/appExamples";
 import { computePanelTransformAtProgress } from "@/lib/chapterPanels";
 import { getLightColorAt, getLightIntensityAt } from "@/lib/chapterAppearance";
@@ -114,6 +115,11 @@ export function Scene({ scrollProgress, reducedMotion, theme, onSelectApp }: Sce
   const mouse = useMouseParallax(!reducedMotion);
   const palette = THEME_PALETTES[theme];
 
+  // Camera and trail-head motion pause inside the services split window
+  // while the raw scroll drives the branch animation (see scrollPhases.ts).
+  const worldProgress = getWorldProgress(scrollProgress);
+  const splitPhase = getSplitPhase(scrollProgress);
+
   return (
     <Canvas
       dpr={highQuality ? [1, 1.75] : [1, 1]}
@@ -125,10 +131,10 @@ export function Scene({ scrollProgress, reducedMotion, theme, onSelectApp }: Sce
       <hemisphereLight
         args={[palette.hemisphereSky, palette.hemisphereGround, palette.hemisphereIntensity]}
       />
-      <RimLight scrollProgress={scrollProgress} theme={theme} />
-      <TravelingLight scrollProgress={scrollProgress} theme={theme} />
-      <ValleyLightTrail scrollProgress={scrollProgress} theme={theme} />
-      <TrailNodes scrollProgress={scrollProgress} theme={theme} onSelectApp={onSelectApp} />
+      <RimLight scrollProgress={worldProgress} theme={theme} />
+      <TravelingLight scrollProgress={worldProgress} theme={theme} />
+      <ValleyLightTrail scrollProgress={worldProgress} theme={theme} />
+      <TrailSplit splitPhase={splitPhase} onSelectApp={onSelectApp} />
       <ValleyAtmosphere scrollProgress={scrollProgress} theme={theme} />
       <Moon theme={theme} />
       <Suspense fallback={null}>
@@ -145,7 +151,7 @@ export function Scene({ scrollProgress, reducedMotion, theme, onSelectApp }: Sce
           <AppMockupModel />
         </group>
       </Suspense>
-      <CameraRig scrollProgress={scrollProgress} reducedMotion={reducedMotion} mouse={mouse} />
+      <CameraRig scrollProgress={worldProgress} reducedMotion={reducedMotion} mouse={mouse} />
     </Canvas>
   );
 }

@@ -81,7 +81,7 @@ function Section({
 
         {section.items ? (
           <ul className={`flex flex-col gap-3 md:gap-4 ${ALIGN_INNER[section.align]}`}>
-            {section.items.map((item) =>
+            {section.items.map((item, itemIndex) =>
               item.details ? (
                 <li key={item.title} className="w-full max-w-xl">
                   <button
@@ -90,27 +90,67 @@ function Section({
                       setExpandedItem(expandedItem === item.title ? null : item.title)
                     }
                     aria-expanded={expandedItem === item.title}
-                    className={`pointer-events-auto w-full border px-5 py-4 text-left transition-all duration-300 ${
+                    className={`group pointer-events-auto relative w-full px-6 py-5 text-left transition-all duration-500 ${
                       dark
                         ? expandedItem === item.title
-                          ? "border-[#7cd9ff] bg-[#0a1a32]/80"
-                          : "border-[#22406a] bg-[#07142a]/60 hover:border-[#4a7cb0]"
+                          ? "bg-[#0a1a32]/85"
+                          : "bg-[#050f20]/60 hover:bg-[#081527]/75"
                         : expandedItem === item.title
-                          ? "border-[#0f5f7a] bg-white/85"
-                          : "border-[#9db4cc] bg-white/50 hover:border-[#0f5f7a]"
+                          ? "bg-white/90"
+                          : "bg-white/55 hover:bg-white/75"
                     }`}
+                    style={{
+                      backgroundImage: dark
+                        ? "linear-gradient(rgba(124,217,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(124,217,255,0.04) 1px, transparent 1px)"
+                        : "linear-gradient(rgba(15,95,122,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(15,95,122,0.05) 1px, transparent 1px)",
+                      backgroundSize: "22px 22px",
+                      boxShadow:
+                        expandedItem === item.title && dark
+                          ? "0 0 40px rgba(57,200,255,0.12), inset 0 0 30px rgba(57,200,255,0.04)"
+                          : undefined,
+                    }}
                   >
-                    <span className="flex items-center justify-between gap-4">
-                      <span className={`text-lg font-medium md:text-xl ${itemTitleColor}`}>
+                    {/* Corner brackets -- tech frame instead of a plain border */}
+                    {[
+                      "left-0 top-0 border-l-2 border-t-2",
+                      "right-0 top-0 border-r-2 border-t-2",
+                      "left-0 bottom-0 border-l-2 border-b-2",
+                      "right-0 bottom-0 border-r-2 border-b-2",
+                    ].map((cls) => (
+                      <span
+                        key={cls}
+                        aria-hidden="true"
+                        className={`absolute h-4 w-4 transition-all duration-500 ${cls} ${
+                          dark
+                            ? expandedItem === item.title
+                              ? "border-[#7cd9ff]"
+                              : "border-[#2c4f7c] group-hover:border-[#4a7cb0]"
+                            : expandedItem === item.title
+                              ? "border-[#0f5f7a]"
+                              : "border-[#9db4cc] group-hover:border-[#0f5f7a]"
+                        } ${expandedItem === item.title ? "h-6 w-6" : ""}`}
+                      />
+                    ))}
+
+                    <span
+                      className={`block font-mono text-[0.6rem] uppercase tracking-[0.4em] ${eyebrowColor}`}
+                      style={{ fontFamily: "var(--font-geist-mono)" }}
+                    >
+                      {`// co-fondateur 0${itemIndex + 1}`}
+                    </span>
+
+                    <span className="mt-2 flex items-center justify-between gap-4">
+                      <span className={`text-xl font-semibold tracking-tight md:text-2xl ${itemTitleColor}`}>
                         {item.title}
                       </span>
                       <span
-                        className={`text-xl transition-transform duration-300 ${eyebrowColor} ${
-                          expandedItem === item.title ? "rotate-45" : ""
+                        className={`font-mono text-lg transition-transform duration-500 ${eyebrowColor} ${
+                          expandedItem === item.title ? "rotate-90" : ""
                         }`}
                         aria-hidden="true"
+                        style={{ fontFamily: "var(--font-geist-mono)" }}
                       >
-                        +
+                        {""}&gt;
                       </span>
                     </span>
                     {item.desc ? (
@@ -118,8 +158,9 @@ function Section({
                         {item.desc}
                       </span>
                     ) : null}
+
                     <span
-                      className="grid transition-[grid-template-rows,opacity] duration-400 ease-out"
+                      className="grid transition-[grid-template-rows,opacity] duration-500 ease-out"
                       style={{
                         gridTemplateRows: expandedItem === item.title ? "1fr" : "0fr",
                         opacity: expandedItem === item.title ? 1 : 0,
@@ -127,22 +168,35 @@ function Section({
                     >
                       <span className="block overflow-hidden">
                         <span
-                          className={`mt-3 block text-[0.65rem] uppercase tracking-[0.3em] ${eyebrowColor}`}
+                          className={`mt-4 block font-mono text-[0.65rem] uppercase tracking-[0.3em] ${eyebrowColor}`}
+                          style={{ fontFamily: "var(--font-geist-mono)" }}
                         >
-                          {item.details.role}
+                          &gt; {item.details.role}
                         </span>
-                        <span className={`mt-2 block text-sm italic leading-relaxed md:text-base ${bodyColor}`}>
+                        <span
+                          className={`mt-2 block border-l-2 pl-3 text-sm italic leading-relaxed md:text-base ${bodyColor} ${
+                            dark ? "border-[#2c4f7c]" : "border-[#9db4cc]"
+                          }`}
+                        >
                           {item.details.quote}
                         </span>
-                        <span className="mt-3 flex flex-wrap gap-2">
-                          {item.details.skills.map((skill) => (
+                        <span className="mt-4 flex flex-wrap gap-2">
+                          {item.details.skills.map((skill, skillIndex) => (
                             <span
                               key={skill}
-                              className={`border px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.15em] ${
+                              className={`border px-2.5 py-1 font-mono text-[0.62rem] uppercase tracking-[0.12em] transition-all duration-300 ${
                                 dark
-                                  ? "border-[#2c4f7c] text-[#9fc6e8]"
-                                  : "border-[#7a92a8] text-[#2a4257]"
+                                  ? "border-[#2c4f7c] bg-[#0a1f3d]/70 text-[#9fc6e8]"
+                                  : "border-[#7a92a8] bg-white/70 text-[#2a4257]"
                               }`}
+                              style={{
+                                fontFamily: "var(--font-geist-mono)",
+                                transitionDelay:
+                                  expandedItem === item.title ? `${skillIndex * 60}ms` : "0ms",
+                                transform:
+                                  expandedItem === item.title ? "translateY(0)" : "translateY(8px)",
+                                opacity: expandedItem === item.title ? 1 : 0,
+                              }}
                             >
                               {skill}
                             </span>

@@ -1,6 +1,7 @@
 "use client";
 
-import type { AppExample } from "@/lib/appExamples";
+import { useState } from "react";
+import type { AppExample, DemoBadge, DemoRow } from "@/lib/appExamples";
 import type { SceneTheme } from "@/lib/theme";
 
 interface AppShowcaseProps {
@@ -9,12 +10,38 @@ interface AppShowcaseProps {
   onClose: () => void;
 }
 
+const BADGE_STYLES: Record<DemoBadge, { dark: string; light: string; label: string }> = {
+  ok: { dark: "bg-[#0e3a24] text-[#4ade80]", light: "bg-[#d9f5e3] text-[#15803d]", label: "OK" },
+  warn: { dark: "bg-[#3a2c0e] text-[#fbbf24]", light: "bg-[#fdf0d5] text-[#b45309]", label: "!" },
+  info: { dark: "bg-[#122a4a] text-[#60a5fa]", light: "bg-[#dbeafe] text-[#1d4ed8]", label: "i" },
+};
+
 // Detail card opened by clicking one of the three glowing stops on the
-// light trail: a mock application window + the example's story and
-// feature list, with a staggered entrance animation.
+// light trail: the example's story on the left, and a genuinely interactive
+// mock application on the right -- clickable screen tabs and a primary
+// action that adds a live row, so visitors can "touch" what KabNetys builds.
 export function AppShowcase({ app, theme, onClose }: AppShowcaseProps) {
   if (!app) return null;
+  // Keyed on the app id so demo state (active tab, added rows) resets
+  // naturally whenever a different app is opened.
+  return <AppShowcaseContent key={app.id} app={app} theme={theme} onClose={onClose} />;
+}
+
+function AppShowcaseContent({
+  app,
+  theme,
+  onClose,
+}: {
+  app: AppExample;
+  theme: SceneTheme;
+  onClose: () => void;
+}) {
+  const [activeScreen, setActiveScreen] = useState(0);
+  const [addedRows, setAddedRows] = useState<DemoRow[]>([]);
+
   const dark = theme === "dark";
+  const screen = app.screens[activeScreen];
+  const rows = activeScreen === 0 ? [...addedRows, ...screen.rows] : screen.rows;
 
   return (
     <div
@@ -120,35 +147,86 @@ export function AppShowcase({ app, theme, onClose }: AppShowcaseProps) {
               {app.name}
             </span>
           </div>
-          <div className="flex flex-1 flex-col gap-3 p-4 md:p-5">
-            {[0.9, 0.65, 0.8, 0.5, 0.72, 0.6].map((width, index) => (
-              <div key={index} className="flex items-center gap-3">
-                <div
-                  className={`h-2.5 origin-left ${dark ? "bg-[#16305a]" : "bg-[#cfdeec]"}`}
-                  style={{
-                    width: `${width * 100}%`,
-                    animation: `showcase-bar 0.6s ${0.4 + index * 0.08}s cubic-bezier(0.22,1,0.36,1) both`,
-                  }}
-                />
-                {index < 3 ? (
-                  <span
-                    className="h-3.5 w-10 shrink-0"
-                    style={{
-                      backgroundColor: app.accent,
-                      opacity: 0.75 - index * 0.15,
-                      animation: `showcase-item 0.4s ${0.55 + index * 0.08}s ease both`,
-                    }}
-                  />
-                ) : null}
-              </div>
+          {/* Screen tabs */}
+          <div
+            className={`flex gap-1 border-b px-3 pt-2 ${
+              dark ? "border-[#16305a]" : "border-[#cfdeec]"
+            }`}
+          >
+            {app.screens.map((s, index) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setActiveScreen(index)}
+                className={`px-3 py-1.5 text-[0.68rem] uppercase tracking-[0.15em] transition-colors ${
+                  index === activeScreen
+                    ? dark
+                      ? "bg-[#12294d] text-white"
+                      : "bg-white text-[#0c1a26]"
+                    : dark
+                      ? "text-[#5c7799] hover:text-[#9db4cc]"
+                      : "text-[#7a92a8] hover:text-[#3d5568]"
+                }`}
+                style={
+                  index === activeScreen
+                    ? { boxShadow: `inset 0 -2px 0 ${app.accent}` }
+                    : undefined
+                }
+              >
+                {s.label}
+              </button>
             ))}
+          </div>
+
+          {/* Rows for the active screen */}
+          <div className="flex flex-1 flex-col gap-2 p-4 md:p-5">
+            {rows.map((row, index) => {
+              const badge = row.badge ? BADGE_STYLES[row.badge] : null;
+              return (
+                <div
+                  key={`${screen.id}-${row.label}-${index}`}
+                  className={`flex items-center justify-between gap-3 border px-3 py-2 text-xs md:text-sm ${
+                    dark ? "border-[#12294d] bg-[#071729]" : "border-[#dbe7f2] bg-white"
+                  }`}
+                  style={{ animation: `showcase-item 0.3s ${index * 0.05}s ease both` }}
+                >
+                  <span className="truncate">{row.label}</span>
+                  <span className="flex shrink-0 items-center gap-2">
+                    {row.value ? (
+                      <span className={dark ? "text-[#9db4cc]" : "text-[#3d5568]"}>{row.value}</span>
+                    ) : null}
+                    {badge ? (
+                      <span
+                        className={`flex h-5 min-w-5 items-center justify-center px-1 text-[0.6rem] font-semibold ${
+                          dark ? badge.dark : badge.light
+                        }`}
+                      >
+                        {badge.label}
+                      </span>
+                    ) : null}
+                  </span>
+                </div>
+              );
+            })}
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveScreen(0);
+                setAddedRows((current) => [app.action.resultRow, ...current].slice(0, 3));
+              }}
+              className="mt-auto self-start px-4 py-2 text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#03101f] transition-transform hover:scale-[1.03] active:scale-[0.98]"
+              style={{ backgroundColor: app.accent }}
+            >
+              {app.action.label}
+            </button>
+
             <div
-              className={`mt-auto flex items-center justify-between border-t pt-3 text-[0.6rem] uppercase tracking-[0.2em] ${
+              className={`flex items-center justify-between border-t pt-3 text-[0.6rem] uppercase tracking-[0.2em] ${
                 dark ? "border-[#16305a] text-[#5c7799]" : "border-[#cfdeec] text-[#7a92a8]"
               }`}
-              style={{ animation: "showcase-item 0.4s 0.75s ease both" }}
             >
-              <span>Sur mesure</span>
+              <span>Démo interactive — sur mesure</span>
               <span style={{ color: app.accent }}>KabNetys</span>
             </div>
           </div>
