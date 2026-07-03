@@ -47,6 +47,15 @@ function buildTrailCurve(): CatmullRomCurve3 {
   return new CatmullRomCurve3(points, false, "catmullrom", 0.5);
 }
 
+let sharedTrailCurve: CatmullRomCurve3 | null = null;
+
+// Shared so TrailNodes can anchor its interactive stops exactly on the
+// ribbon's path.
+export function getTrailCurve(): CatmullRomCurve3 {
+  if (!sharedTrailCurve) sharedTrailCurve = buildTrailCurve();
+  return sharedTrailCurve;
+}
+
 const VERTEX_SHADER = `
 varying vec2 vUv;
 void main() {
@@ -79,9 +88,9 @@ void main() {
   float streaks = 0.72 + 0.28 * sin(vUv.x * 240.0 - uTime * 6.0);
   float pulse = 0.9 + 0.1 * sin(uTime * 2.1 + vUv.x * 30.0);
 
-  // White-hot near the head, deep electric blue down the tail.
-  vec3 headColor = vec3(0.86, 0.95, 1.0);
-  vec3 tailColor = vec3(0.10, 0.42, 1.0);
+  // The KabNetys logo blues: bright #39c8ff at the head, deep #0066ff tail.
+  vec3 headColor = vec3(0.22, 0.78, 1.0);
+  vec3 tailColor = vec3(0.0, 0.40, 1.0);
   vec3 color = mix(tailColor, headColor, window);
 
   float intensity = window * streaks * pulse;
@@ -94,7 +103,7 @@ export function ValleyLightTrail({ scrollProgress, theme }: ValleyLightTrailProp
   const haloMaterialRef = useRef<ShaderMaterial>(null);
 
   const { coreGeometry, haloGeometry } = useMemo(() => {
-    const curve = buildTrailCurve();
+    const curve = getTrailCurve();
     return {
       coreGeometry: new TubeGeometry(curve, TUBE_SEGMENTS, CORE_RADIUS, 8, false),
       haloGeometry: new TubeGeometry(curve, TUBE_SEGMENTS, HALO_RADIUS, 8, false),

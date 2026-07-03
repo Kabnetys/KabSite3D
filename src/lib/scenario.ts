@@ -15,6 +15,12 @@ export interface ScenarioStat {
 export interface ScenarioItem {
   title: string;
   desc?: string;
+  /** Expanded on click (team members): role, full quote, skill chips. */
+  details?: {
+    role: string;
+    quote: string;
+    skills: string[];
+  };
 }
 
 export interface ScenarioSection {
@@ -90,12 +96,23 @@ export const SCENARIO_SECTIONS: ScenarioSection[] = [
     title: ["Deux profils.", "Un spectre complet."],
     items: [
       {
-        title: "Anthony Bonjour — Directeur Général",
-        desc: "« Réseau, infrastructure, cybersécurité : j'interviens là où la technique fait la différence. »",
+        title: "Anthony Bonjour",
+        desc: "La technique, là où elle fait la différence.",
+        details: {
+          role: "Directeur Général · Co-fondateur",
+          quote:
+            "« Réseau, infrastructure, développement, cybersécurité — j'interviens là où la technique fait la différence. »",
+          skills: ["Réseau N1/N2", "Infrastructure SI", "Cybersécurité", "C#", "SQL"],
+        },
       },
       {
-        title: "Kyllian Bletrix — Président",
-        desc: "« Coder, transmettre, entreprendre : c'est ce qui me fait me lever chaque matin. »",
+        title: "Kyllian Bletrix",
+        desc: "Coder, transmettre, entreprendre.",
+        details: {
+          role: "Président · Co-fondateur",
+          quote: "« Coder, transmettre, entreprendre — c'est ce qui me fait me lever chaque matin. »",
+          skills: ["Laravel", "C# / POO", "SQL", "Power BI", "Git"],
+        },
       },
     ],
     peakProgress: 0.8,

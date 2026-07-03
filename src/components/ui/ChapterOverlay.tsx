@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { getPanelVisibility } from "@/lib/chapters";
 import { SCENARIO_SECTIONS, type ScenarioSection } from "@/lib/scenario";
 import type { SceneTheme } from "@/lib/theme";
@@ -34,6 +35,8 @@ function Section({
   visibility: number;
   theme: SceneTheme;
 }) {
+  const [expandedItem, setExpandedItem] = useState<string | null>(null);
+
   if (visibility < 0.015) return null;
 
   const eased = visibility * visibility * (3 - 2 * visibility);
@@ -78,16 +81,88 @@ function Section({
 
         {section.items ? (
           <ul className={`flex flex-col gap-3 md:gap-4 ${ALIGN_INNER[section.align]}`}>
-            {section.items.map((item) => (
-              <li key={item.title} className="max-w-xl">
-                <p className={`text-lg font-medium md:text-xl ${itemTitleColor}`}>{item.title}</p>
-                {item.desc ? (
-                  <p className={`mt-1 text-sm leading-relaxed md:text-base ${bodyColor}`}>
-                    {item.desc}
-                  </p>
-                ) : null}
-              </li>
-            ))}
+            {section.items.map((item) =>
+              item.details ? (
+                <li key={item.title} className="w-full max-w-xl">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setExpandedItem(expandedItem === item.title ? null : item.title)
+                    }
+                    aria-expanded={expandedItem === item.title}
+                    className={`pointer-events-auto w-full border px-5 py-4 text-left transition-all duration-300 ${
+                      dark
+                        ? expandedItem === item.title
+                          ? "border-[#7cd9ff] bg-[#0a1a32]/80"
+                          : "border-[#22406a] bg-[#07142a]/60 hover:border-[#4a7cb0]"
+                        : expandedItem === item.title
+                          ? "border-[#0f5f7a] bg-white/85"
+                          : "border-[#9db4cc] bg-white/50 hover:border-[#0f5f7a]"
+                    }`}
+                  >
+                    <span className="flex items-center justify-between gap-4">
+                      <span className={`text-lg font-medium md:text-xl ${itemTitleColor}`}>
+                        {item.title}
+                      </span>
+                      <span
+                        className={`text-xl transition-transform duration-300 ${eyebrowColor} ${
+                          expandedItem === item.title ? "rotate-45" : ""
+                        }`}
+                        aria-hidden="true"
+                      >
+                        +
+                      </span>
+                    </span>
+                    {item.desc ? (
+                      <span className={`mt-1 block text-sm md:text-base ${bodyColor}`}>
+                        {item.desc}
+                      </span>
+                    ) : null}
+                    <span
+                      className="grid transition-[grid-template-rows,opacity] duration-400 ease-out"
+                      style={{
+                        gridTemplateRows: expandedItem === item.title ? "1fr" : "0fr",
+                        opacity: expandedItem === item.title ? 1 : 0,
+                      }}
+                    >
+                      <span className="block overflow-hidden">
+                        <span
+                          className={`mt-3 block text-[0.65rem] uppercase tracking-[0.3em] ${eyebrowColor}`}
+                        >
+                          {item.details.role}
+                        </span>
+                        <span className={`mt-2 block text-sm italic leading-relaxed md:text-base ${bodyColor}`}>
+                          {item.details.quote}
+                        </span>
+                        <span className="mt-3 flex flex-wrap gap-2">
+                          {item.details.skills.map((skill) => (
+                            <span
+                              key={skill}
+                              className={`border px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.15em] ${
+                                dark
+                                  ? "border-[#2c4f7c] text-[#9fc6e8]"
+                                  : "border-[#7a92a8] text-[#2a4257]"
+                              }`}
+                            >
+                              {skill}
+                            </span>
+                          ))}
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+                </li>
+              ) : (
+                <li key={item.title} className="max-w-xl">
+                  <p className={`text-lg font-medium md:text-xl ${itemTitleColor}`}>{item.title}</p>
+                  {item.desc ? (
+                    <p className={`mt-1 text-sm leading-relaxed md:text-base ${bodyColor}`}>
+                      {item.desc}
+                    </p>
+                  ) : null}
+                </li>
+              )
+            )}
           </ul>
         ) : null}
 

@@ -9,10 +9,12 @@ import { ValleyTerrain } from "./ValleyTerrain";
 import { ValleyAtmosphere } from "./ValleyAtmosphere";
 import { ValleyWater } from "./ValleyWater";
 import { ValleyLightTrail } from "./ValleyLightTrail";
+import { TrailNodes } from "./TrailNodes";
 import { Moon } from "./Moon";
 import { AppMockupModel } from "./AppMockupModel";
 import { CameraRig } from "./CameraRig";
 import { THEME_PALETTES, type SceneTheme } from "@/lib/theme";
+import type { AppExample } from "@/lib/appExamples";
 import { computePanelTransformAtProgress } from "@/lib/chapterPanels";
 import { getLightColorAt, getLightIntensityAt } from "@/lib/chapterAppearance";
 
@@ -27,6 +29,7 @@ interface SceneProps {
   scrollProgress: number;
   reducedMotion: boolean;
   theme: SceneTheme;
+  onSelectApp: (app: AppExample) => void;
 }
 
 interface RimLightProps {
@@ -104,7 +107,7 @@ function TravelingLight({ scrollProgress, theme }: TravelingLightProps) {
   return <pointLight ref={lightRef} color="#9cc8ff" distance={80} decay={1.7} intensity={0} />;
 }
 
-export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
+export function Scene({ scrollProgress, reducedMotion, theme, onSelectApp }: SceneProps) {
   const performanceTier = useMemo(() => detectPerformanceTier(), []);
   const highQuality = performanceTier === "high";
   const segments = highQuality ? 120 : 70;
@@ -125,6 +128,7 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
       <RimLight scrollProgress={scrollProgress} theme={theme} />
       <TravelingLight scrollProgress={scrollProgress} theme={theme} />
       <ValleyLightTrail scrollProgress={scrollProgress} theme={theme} />
+      <TrailNodes scrollProgress={scrollProgress} theme={theme} onSelectApp={onSelectApp} />
       <ValleyAtmosphere scrollProgress={scrollProgress} theme={theme} />
       <Moon theme={theme} />
       <Suspense fallback={null}>
