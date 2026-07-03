@@ -14,13 +14,18 @@ const dayFogColor = new Color();
 
 const STAR_COUNT = 900;
 const STAR_MARGIN = 250;
+// A second, sparser cloud of slightly larger points sits in front of the
+// main field -- cheap depth cue (varied apparent size/brightness) instead
+// of a single uniform layer of identical dots, without any extra per-frame
+// vertex work.
+const BRIGHT_STAR_COUNT = 140;
 
-function buildStarPositions(): Float32Array {
+function buildStarPositions(count: number): Float32Array {
   const { min, max } = getChapterZRange();
   const zStart = max + STAR_MARGIN;
   const zSpan = max - min + STAR_MARGIN * 2;
-  const positions = new Float32Array(STAR_COUNT * 3);
-  for (let i = 0; i < STAR_COUNT; i += 1) {
+  const positions = new Float32Array(count * 3);
+  for (let i = 0; i < count; i += 1) {
     positions[i * 3] = (Math.random() - 0.5) * 500;
     positions[i * 3 + 1] = 30 + Math.random() * 140;
     positions[i * 3 + 2] = zStart - Math.random() * zSpan;
@@ -31,7 +36,9 @@ function buildStarPositions(): Float32Array {
 export function ValleyAtmosphere({ scrollProgress, theme }: ValleyAtmosphereProps) {
   const fogRef = useRef<FogExp2>(null);
   const starsRef = useRef<Points>(null);
-  const starPositions = useMemo(() => buildStarPositions(), []);
+  const brightStarsRef = useRef<Points>(null);
+  const starPositions = useMemo(() => buildStarPositions(STAR_COUNT), []);
+  const brightStarPositions = useMemo(() => buildStarPositions(BRIGHT_STAR_COUNT), []);
   const palette = THEME_PALETTES[theme];
 
   useFrame(() => {
@@ -47,9 +54,14 @@ export function ValleyAtmosphere({ scrollProgress, theme }: ValleyAtmosphereProp
         fogRef.current.density = getFogDensityAt(scrollProgress);
       }
     }
+    const opacity = theme === "light" ? 0 : getStarOpacityAt(scrollProgress);
     if (starsRef.current) {
       const material = starsRef.current.material as import("three").PointsMaterial;
-      material.opacity = theme === "light" ? 0 : getStarOpacityAt(scrollProgress);
+      material.opacity = opacity;
+    }
+    if (brightStarsRef.current) {
+      const material = brightStarsRef.current.material as import("three").PointsMaterial;
+      material.opacity = opacity * 0.85;
     }
   });
 
@@ -60,7 +72,13 @@ export function ValleyAtmosphere({ scrollProgress, theme }: ValleyAtmosphereProp
         <bufferGeometry>
           <bufferAttribute attach="attributes-position" args={[starPositions, 3]} />
         </bufferGeometry>
-        <pointsMaterial color="#e8f4ff" size={0.6} transparent opacity={0} sizeAttenuation fog={false} />
+        <pointsMaterial color="#dfeaff" size={0.45} transparent opacity={0} sizeAttenuation fog={false} />
+      </points>
+      <points ref={brightStarsRef}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[brightStarPositions, 3]} />
+        </bufferGeometry>
+        <pointsMaterial color="#f4f9ff" size={1.15} transparent opacity={0} sizeAttenuation fog={false} />
       </points>
     </>
   );

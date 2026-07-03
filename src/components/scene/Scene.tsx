@@ -19,6 +19,8 @@ import { getLightColorAt, getLightIntensityAt } from "@/lib/chapterAppearance";
 
 interface ChapterPanelConfig {
   id: string;
+  /** Small caps chapter label floating above the statement, e.g. "01 — LA FRICTION". */
+  eyebrow?: string;
   heading?: string;
   headingScale?: number;
   lines: string[];
@@ -40,6 +42,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   // -- L'Aube : l'accroche du dossier entreprise --
   {
     id: "aube-1",
+    eyebrow: "L'AUBE",
     lines: ["Pour chaque artisan,", "un outil sur mesure."],
     peakProgress: 0.04,
     fadeHalfWidth: 0.06,
@@ -50,6 +53,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   // -- La Friction : les points de douleur du dossier entreprise, un a la fois --
   {
     id: "friction-1",
+    eyebrow: "01 — LA FRICTION",
     lines: ["Excel en versions", "multiples."],
     peakProgress: 0.18,
     fadeHalfWidth: 0.035,
@@ -59,6 +63,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     id: "friction-2",
+    eyebrow: "02 — LA FRICTION",
     lines: ["Erreurs de saisie."],
     peakProgress: 0.23,
     fadeHalfWidth: 0.035,
@@ -68,6 +73,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     id: "friction-3",
+    eyebrow: "03 — LA FRICTION",
     lines: ["Temps perdu", "à recopier."],
     peakProgress: 0.28,
     fadeHalfWidth: 0.035,
@@ -77,6 +83,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     id: "friction-4",
+    eyebrow: "04 — LA FRICTION",
     lines: ["Des outils", "inadaptés."],
     peakProgress: 0.33,
     fadeHalfWidth: 0.035,
@@ -87,6 +94,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   // -- La Percee : une carte par service (dossier entreprise + fr.json) --
   {
     id: "percee-1",
+    eyebrow: "SERVICES",
     heading: "APPLICATIONS MÉTIER",
     lines: ["Multi-utilisateurs,", "sécurisée, évolutive."],
     peakProgress: 0.4,
@@ -97,6 +105,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     id: "percee-2",
+    eyebrow: "SERVICES",
     heading: "SITES INTERNET",
     lines: ["Vitrine, portail client,", "espace admin."],
     peakProgress: 0.46,
@@ -107,6 +116,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     id: "percee-3",
+    eyebrow: "SERVICES",
     heading: "AUTOMATISATION",
     lines: ["Excel, Outlook connectés,", "zéro ressaisie."],
     peakProgress: 0.52,
@@ -118,6 +128,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   // -- L'Intelligence : la position du dossier entreprise + chiffres sourcés --
   {
     id: "intelligence-1",
+    eyebrow: "L'INTELLIGENCE",
     lines: ["L'IA propose,", "on dispose."],
     peakProgress: 0.58,
     fadeHalfWidth: 0.035,
@@ -161,6 +172,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   // -- L'Equipe : portraits + vraies citations (fr.json) --
   {
     id: "equipe-1",
+    eyebrow: "L'ÉQUIPE",
     heading: "ANTHONY BONJOUR",
     lines: ["Directeur Général", "« Réseau, infrastructure,", "cybersécurité — j'interviens", "là où la technique", "fait la différence. »"],
     peakProgress: 0.78,
@@ -171,6 +183,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   },
   {
     id: "equipe-2",
+    eyebrow: "L'ÉQUIPE",
     heading: "KYLLIAN BLETRIX",
     lines: ["Président", "« Coder, transmettre,", "entreprendre — c'est ce qui", "me fait me lever chaque matin. »"],
     peakProgress: 0.83,
@@ -182,6 +195,7 @@ const CHAPTER_PANELS: ChapterPanelConfig[] = [
   // -- L'Horizon : la conclusion du dossier entreprise --
   {
     id: "horizon-1",
+    eyebrow: "L'HORIZON",
     lines: ["Votre projet", "commence ici."],
     peakProgress: 0.9,
     fadeHalfWidth: 0.05,
@@ -288,12 +302,14 @@ export function Scene({ scrollProgress, reducedMotion, theme }: SceneProps) {
             rotation={[0, transform.rotationY, 0]}
           >
             <ChapterTextModule3D
+              eyebrow={config.eyebrow}
               heading={config.heading}
               headingScale={config.headingScale}
               lines={config.lines}
               scrollProgress={scrollProgress}
               peakProgress={config.peakProgress}
               fadeHalfWidth={config.fadeHalfWidth}
+              theme={theme}
             />
           </group>
         ))}

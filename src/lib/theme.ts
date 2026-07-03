@@ -36,9 +36,9 @@ export const THEME_PALETTES: Record<SceneTheme, ThemePalette> = {
     waterBase: "#0a1c4a",
     waterCrest: "#1c4f9c",
     waterEmissive: "#123a7a",
-    waterEmissiveIntensity: 0.16,
+    waterEmissiveIntensity: 0.1,
     terrainTint: "#ffffff",
-    terrainTintStrength: 0.07,
+    terrainTintStrength: 0.05,
   },
   light: {
     background: "#bfe3fb",
@@ -55,8 +55,8 @@ export const THEME_PALETTES: Record<SceneTheme, ThemePalette> = {
     waterBase: "#1f7fb8",
     waterCrest: "#7fd6ea",
     waterEmissive: "#2a8fc4",
-    waterEmissiveIntensity: 0.02,
+    waterEmissiveIntensity: 0.015,
     terrainTint: "#fff2dc",
-    terrainTintStrength: 0.05,
+    terrainTintStrength: 0.04,
   },
 };

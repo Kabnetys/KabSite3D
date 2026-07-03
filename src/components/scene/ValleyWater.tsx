@@ -157,11 +157,11 @@ export function ValleyWater({ theme }: ValleyWaterProps) {
         ref={materialRef}
         vertexColors
         normalMap={normalMap}
-        normalScale={[1.4, 1.4]}
+        normalScale={[1.1, 1.1]}
         emissive={palette.waterEmissive}
         emissiveIntensity={palette.waterEmissiveIntensity}
-        roughness={0.32}
-        metalness={0.35}
+        roughness={0.18}
+        metalness={0.55}
         transparent
         opacity={1}
       />
